@@ -12,4 +12,7 @@ export default defineConfig({
   server: {
     open: true,
   },
+  ptimizeDeps: {
+    include: ['vue3-circle-progress/dist/circle-progress.umd.min.j']
+  }
 })

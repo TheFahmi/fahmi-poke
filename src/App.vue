@@ -1,27 +1,35 @@
-<script setup>
-import { ref } from 'vue'
+<template>
+  <Suspense>
+    <template #default>
+      <Pokemon />
+    </template>
+    <template #fallback>
+      <Loading />
+    </template>
+  </Suspense>
+</template>
 
-let counter = ref(0)
+<script>
+import Pokemon from "@/components/Pokemon.vue"
+import Loading from "@/components/Loading.vue"
 
-setInterval(() => {
-  counter.value++
-}, 1000)
+export default {
+  name: "app",
+  components: {
+    Pokemon,
+    Loading
+  }
+};
 </script>
 
-<template>
-  <div>
-    <header class="bg-white shadow" v-if="$route.meta.title">
-      <div class="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <h1
-          @click="counter = 0"
-          class="text-3xl font-bold leading-tight text-gray-900"
-        >
-          {{ $route.meta.title }} / {{ counter }}
-        </h1>
-      </div>
-    </header>
-    <main>
-      <router-view />
-    </main>
-  </div>
-</template>
+<style>
+@import url("https://use.fontawesome.com/releases/v5.8.2/css/all.css");
+
+body {
+  margin: 0;
+  padding: 0;
+}
+#app {
+  background: radial-gradient(#ffbf0b, #e20000);
+}
+</style>
