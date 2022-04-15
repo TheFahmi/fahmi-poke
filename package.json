@@ -10,7 +10,7 @@
     "bottom-sheet-vue3": "^1.0.2",
     "sass": "^1.43.4",
     "v-lazy-image": "^2.0.1",
-    "vue": "^3.2.21",
+    "vue": "^3.2.33",
     "vue-router": "^4.0.12",
     "vue3-circle-progress": "^1.0.6"
   },
