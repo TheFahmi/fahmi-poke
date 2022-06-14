@@ -1,18 +1,28 @@
-import { createApp } from 'vue'
+import { createSSRApp } from 'vue'
 import './tailwind.css'
 import App from './App.vue'
 import { routes } from './routes.js'
 import VLazyImage from 'v-lazy-image'
-import { createRouter, createWebHistory } from 'vue-router'
-
-const app = createApp(App)
+import { createRouter, createWebHistory, createMemoryHistory } from 'vue-router'
 
 
-const router = createRouter({
-  history: createWebHistory(),
-  routes,
-})
+export function createApp() {
+  const app = createSSRApp(App)
+  const isClient = typeof window !== 'undefined'
+  const router = createRouter({
+    history: isClient 
+   ? createWebHistory() 
+   : createMemoryHistory(), 
+    routes,
+  })
+  if (isClient) {
+    app.use(router)
+    app.use(VLazyImage)
+  }
+  app.mount('#app')
+  return { app, router }
+}
 
-app.use(VLazyImage)
-app.use(router)
-app.mount('#app')
+
+
+

@@ -121,15 +121,15 @@ export default {
     } 
 
     const scrollTrigger = () => {
-      const infinitescrolltrigger = document.querySelector('#scroll-trigger');
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.intersectionRatio > 0 && nextUrl) {
-            next()
-          }
-        })
-      })
-      observer.observe(infinitescrolltrigger)
+      // const infinitescrolltrigger = document.querySelector('#scroll-trigger');
+      // const observer = new IntersectionObserver((entries) => {
+      //   entries.forEach((entry) => {
+      //     if (entry.intersectionRatio > 0 && nextUrl) {
+      //       next()
+      //     }
+      //   })
+      // })
+      // observer.observe(infinitescrolltrigger)
     }
   
     const next = () => {
