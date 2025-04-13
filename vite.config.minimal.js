@@ -1,11 +1,27 @@
 // Minimal Vite configuration for Vercel
-module.exports = {
-  // No plugins, no special configuration
+const { defineConfig } = require('vite');
+const vue = require('@vitejs/plugin-vue');
+
+console.log('Using minimal Vite configuration');
+
+module.exports = defineConfig({
+  // Only essential plugins
+  plugins: [vue()],
+  // Use relative paths
+  base: './',
+  // Simplest possible build configuration
   build: {
-    // Simplest possible build configuration
     outDir: 'dist',
     emptyOutDir: true,
     minify: false,
-    sourcemap: false
+    sourcemap: false,
+    // Avoid any advanced features
+    target: 'es2015',
+    // Avoid chunking
+    rollupOptions: {
+      output: {
+        manualChunks: undefined
+      }
+    }
   }
-};
+});
