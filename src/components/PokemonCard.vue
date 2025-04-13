@@ -1,6 +1,6 @@
 <template>
   <div
-    class="group relative bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-2xl shadow-lg overflow-hidden transition-all duration-300 transform hover:-translate-y-2"
+    class="group relative bg-white/10 hover:bg-white/20 dark:bg-gray-800/20 dark:hover:bg-gray-800/30 backdrop-blur-md rounded-2xl shadow-lg overflow-hidden transition-all duration-300 transform hover:-translate-y-2"
     @click="$emit('select-pokemon', pokemon)"
   >
     <!-- Card Header with Pokémon ID -->
@@ -73,26 +73,26 @@
 
     <!-- Pokemon Info -->
     <div class="p-4">
-      <h3 class="text-xl font-bold text-white capitalize text-center mb-2">
+      <h3 class="text-xl font-bold text-white dark:text-gray-100 capitalize text-center mb-2">
         {{ pokemon.name || 'Unknown' }}
       </h3>
 
       <!-- Pokemon Stats Preview -->
-      <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-white/80">
-        <div class="flex flex-col items-center bg-white/10 rounded-lg p-2">
-          <span class="text-white/60">Height</span>
-          <span class="font-bold text-white">{{ pokemon.height ? `${pokemon.height/10}m` : 'N/A' }}</span>
+      <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-white/80 dark:text-gray-300/80">
+        <div class="flex flex-col items-center bg-white/10 dark:bg-gray-700/30 rounded-lg p-2">
+          <span class="text-white/60 dark:text-gray-400">Height</span>
+          <span class="font-bold text-white dark:text-gray-200">{{ pokemon.height ? `${pokemon.height/10}m` : 'N/A' }}</span>
         </div>
-        <div class="flex flex-col items-center bg-white/10 rounded-lg p-2">
-          <span class="text-white/60">Weight</span>
-          <span class="font-bold text-white">{{ pokemon.weight ? `${pokemon.weight/10}kg` : 'N/A' }}</span>
+        <div class="flex flex-col items-center bg-white/10 dark:bg-gray-700/30 rounded-lg p-2">
+          <span class="text-white/60 dark:text-gray-400">Weight</span>
+          <span class="font-bold text-white dark:text-gray-200">{{ pokemon.weight ? `${pokemon.weight/10}kg` : 'N/A' }}</span>
         </div>
       </div>
 
       <!-- View Details Button -->
       <button
         @click.stop="$emit('view-details', pokemon)"
-        class="mt-4 w-full py-2 bg-white/20 hover:bg-white/30 text-white text-sm font-medium rounded-lg transition-colors duration-300"
+        class="mt-4 w-full py-2 bg-white/20 hover:bg-white/30 dark:bg-gray-700/40 dark:hover:bg-gray-700/60 text-white dark:text-gray-200 text-sm font-medium rounded-lg transition-colors duration-300"
       >
         View Details
       </button>

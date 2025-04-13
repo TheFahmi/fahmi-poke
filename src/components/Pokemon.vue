@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-pokemon-yellow via-pokemon-red to-pokemon-blue">
+  <div class="min-h-screen bg-gradient-to-br from-pokemon-yellow via-pokemon-red to-pokemon-blue dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 transition-colors duration-500">
     <!-- Header with Glass Morphism -->
-    <header class="sticky top-0 z-40 backdrop-blur-md bg-white/10 shadow-lg py-4 mb-8">
+    <header class="sticky top-0 z-40 backdrop-blur-md bg-white/10 dark:bg-black/30 shadow-lg py-4 mb-8">
       <div class="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between">
         <!-- Logo and Title -->
         <div class="flex items-center mb-4 md:mb-0">
@@ -13,24 +13,35 @@
           <h1 class="text-2xl md:text-3xl font-bold text-white drop-shadow-md">Pokédex</h1>
         </div>
 
-        <!-- Navigation Tabs -->
-        <div class="flex space-x-2 bg-white/20 backdrop-blur-sm p-1 rounded-full shadow-inner">
-          <button
-            @click.prevent.stop="switchToAllPokemon"
-            :class="{'bg-white text-primary-700 shadow-md' : activeMenu === 'listPokemon', 'text-white hover:bg-white/40' : activeMenu !== 'listPokemon'}"
-            class="px-6 py-2 text-sm font-medium rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-white/50 text-center"
-            type="button"
-          >
-            All Pokémon
-          </button>
-          <button
-            @click.prevent.stop="switchToFavorites"
-            :class="{'bg-white text-primary-700 shadow-md' : activeMenu === 'listFavorite', 'text-white hover:bg-white/40' : activeMenu !== 'listFavorite'}"
-            class="px-6 py-2 text-sm font-medium rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-white/50 text-center"
-            type="button"
-          >
-            Favorites
-          </button>
+        <div class="flex items-center space-x-4">
+          <!-- Dark Mode Toggle -->
+          <DarkModeToggle class="mr-2" />
+
+          <!-- Navigation Tabs -->
+          <div class="flex space-x-2 bg-white/20 dark:bg-gray-800/40 backdrop-blur-sm p-1 rounded-full shadow-inner">
+            <button
+              @click.prevent.stop="switchToAllPokemon"
+              :class="{
+                'bg-white text-primary-700 dark:bg-gray-800 dark:text-white shadow-md' : activeMenu === 'listPokemon',
+                'text-white hover:bg-white/40 dark:hover:bg-gray-700/40' : activeMenu !== 'listPokemon'
+              }"
+              class="px-6 py-2 text-sm font-medium rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-white/50 text-center"
+              type="button"
+            >
+              All Pokémon
+            </button>
+            <button
+              @click.prevent.stop="switchToFavorites"
+              :class="{
+                'bg-white text-primary-700 dark:bg-gray-800 dark:text-white shadow-md' : activeMenu === 'listFavorite',
+                'text-white hover:bg-white/40 dark:hover:bg-gray-700/40' : activeMenu !== 'listFavorite'
+              }"
+              class="px-6 py-2 text-sm font-medium rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-white/50 text-center"
+              type="button"
+            >
+              Favorites
+            </button>
+          </div>
         </div>
       </div>
     </header>
@@ -65,7 +76,7 @@
                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                   </svg>
                 </button>
-                
+
                 <!-- Reset Filter Button (only visible when a filter is active) -->
                 <button
                   v-if="selectedType.value"
@@ -139,7 +150,7 @@
             <div class="absolute top-3 left-3 bg-black/30 backdrop-blur-md px-2 py-1 rounded-full text-xs font-bold text-white">
               #{{ pokemon.id.padStart(3, '0') }}
             </div>
-            
+
             <!-- Favorite Button -->
             <button
               @click.stop="togglePokemonFavorite(pokemon)"
@@ -161,7 +172,7 @@
                 />
               </svg>
             </button>
-            
+
             <!-- Pokemon Image Container -->
             <div class="relative h-48 flex items-center justify-center overflow-hidden bg-gradient-to-br from-white/5 to-white/20">
               <!-- Pokemon Image -->
@@ -185,7 +196,7 @@
               >
                 <div class="text-white/50">Loading...</div>
               </div>
-              
+
               <!-- Type Badges on Image -->
               <div class="absolute bottom-2 left-0 right-0 flex justify-center gap-2">
                 <span
@@ -198,13 +209,13 @@
                 </span>
               </div>
             </div>
-            
+
             <!-- Pokemon Info -->
             <div class="p-4">
               <h3 class="text-xl font-bold text-white capitalize text-center mb-2">
                 {{ pokemon.name }}
               </h3>
-              
+
               <!-- Pokemon Stats Preview (optional) -->
               <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-white/80">
                 <div class="flex flex-col items-center bg-white/10 rounded-lg p-2">
@@ -216,9 +227,9 @@
                   <span class="font-bold text-white">{{ pokemon.weight ? `${(pokemon.weight/10).toFixed(1)}kg` : 'N/A' }}</span>
                 </div>
               </div>
-              
+
               <!-- View Details Button -->
-              <button 
+              <button
                 @click="showPokemonDetails(pokemon)"
                 class="mt-4 w-full py-2 bg-white/20 hover:bg-white/30 text-white text-sm font-medium rounded-lg transition-colors duration-300"
               >
@@ -226,7 +237,7 @@
               </button>
             </div>
           </div>
-          
+
           <!-- Loading state or empty message -->
           <p v-if="isLoading.value" class="col-span-full text-center text-white">Loading...</p>
           <p v-else-if="directPokemonList.length === 0" class="col-span-full text-center text-white">No Pokemon available</p>
@@ -236,7 +247,7 @@
         <div v-if="activeMenu === 'listPokemon' && nextUrl.value && isLoading.value && !directPokemonList.length" class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mt-6">
           <PokemonSkeleton v-for="n in 5" :key="`infinite-skeleton-${n}`" />
         </div>
-        
+
         <!-- Infinite Scroll Trigger Element -->
         <div ref="infiniteScrollTrigger" class="py-4 mt-2" v-if="activeMenu === 'listPokemon' && nextUrl.value">
           <div v-if="isLoading.value" class="flex justify-center items-center py-2">
@@ -253,7 +264,7 @@
             </span>
           </div>
         </div>
-        
+
         <!-- Fallback Infinite Scroll Trigger -->
         <div ref="infiniteScrollTriggerFallback" class="h-1 mt-2"></div>
 
@@ -284,6 +295,7 @@ import PokemonFavorite from '@/components/PokemonFavorite.vue'
 import PokemonDetail from '@/components/PokemonDetail.vue'
 import PokemonSkeleton from '@/components/PokemonSkeleton.vue'
 import Loading from '@/components/Loading.vue'
+import DarkModeToggle from '@/components/DarkModeToggle.vue'
 
 // Initialize store
 const pokemonStore = usePokemonStore()
@@ -324,15 +336,15 @@ const directPokemonList = computed(() => {
   if (pokemonStore.filteredPokemons?.length > 0) {
     return pokemonStore.filteredPokemons
   }
-  
+
   if (pokemonStore.pokemons?.length > 0) {
     return pokemonStore.pokemons
   }
-  
+
   if (window.pokemonStore?.pokemons?.length > 0) {
     return window.pokemonStore.pokemons
   }
-  
+
   return []
 })
 
@@ -395,11 +407,11 @@ const loadMorePokemon = () => {
 // Navigation methods
 const switchToAllPokemon = () => {
   activeMenu.value = 'listPokemon'
-  
+
   if (!pokemons.value || pokemons.value.length === 0) {
     fetchPokemons()
   }
-  
+
   if (!pokemonTypes.value || pokemonTypes.value.length === 0) {
     fetchPokemonTypes()
   }
@@ -458,9 +470,9 @@ const togglePokemonFavorite = (pokemon) => {
       pokemonStore.toggleFavorite(pokemon)
     } else {
       pokemon.isLike = !pokemon.isLike
-      
+
       const favorites = JSON.parse(localStorage.getItem('favorites') || '[]')
-      
+
       if (pokemon.isLike) {
         if (!favorites.includes(pokemon.id)) {
           favorites.push(pokemon.id)
@@ -471,7 +483,7 @@ const togglePokemonFavorite = (pokemon) => {
           favorites.splice(index, 1)
         }
       }
-      
+
       localStorage.setItem('favorites', JSON.stringify(favorites))
     }
   } catch (error) {
@@ -527,7 +539,7 @@ const ensureTypesLoaded = () => {
     if (!pokemonTypes.value || pokemonTypes.value.length === 0) {
       console.log('Types not loaded, fetching...')
       fetchPokemonTypes()
-      
+
       // Langsung ambil dari window store jika tersedia
       if (window.pokemonStore?.pokemonTypes && window.pokemonStore.pokemonTypes.length > 0) {
         console.log('Using types from global store')
@@ -544,7 +556,7 @@ const ensureTypesLoaded = () => {
 onMounted(() => {
   // Ensure types are loaded immediately
   ensureTypesLoaded()
-  
+
   // Ensure store is initialized
   if (!pokemons.value || pokemons.value.length === 0) {
     if (window.pokemonStore && window.pokemonStore.pokemons && window.pokemonStore.pokemons.length > 0) {
@@ -607,11 +619,11 @@ watch(activeMenu, (newValue) => {
     if (!pokemons.value || pokemons.value.length === 0) {
       fetchPokemons()
     }
-    
+
     if (!pokemonTypes.value || pokemonTypes.value.length === 0) {
       fetchPokemonTypes()
     }
-    
+
     // Give time for the DOM to update
     setTimeout(() => {
       setupInfiniteScroll()
@@ -621,7 +633,7 @@ watch(activeMenu, (newValue) => {
 
 // Watch for both trigger elements
 watch([
-  () => infiniteScrollTrigger.value, 
+  () => infiniteScrollTrigger.value,
   () => infiniteScrollTriggerFallback.value
 ], ([primary, fallback]) => {
   if ((primary || fallback) && activeMenu.value === 'listPokemon') {
@@ -633,7 +645,7 @@ watch([
 const handleTypeRetry = () => {
   try {
     fetchPokemonTypes()
-    
+
     // Juga coba ambil dari store global jika tersedia
     if (window.pokemonStore?.pokemonTypes && window.pokemonStore.pokemonTypes.length > 0) {
       pokemonStore.$patch({
