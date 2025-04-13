@@ -18,6 +18,7 @@ try {
   // This is a special Vite config for Vercel with maximum compatibility
   const config = {
     plugins: [vue()],
+    base: './',
     resolve: {
       alias: {
         '@': srcPath
@@ -63,7 +64,8 @@ try {
 
     console.log('Using minimal fallback config');
     module.exports = defineConfig({
-      plugins: [vue()]
+      plugins: [vue()],
+      base: './'
     });
   } catch (fallbackError) {
     console.error('Error creating fallback config:', fallbackError);

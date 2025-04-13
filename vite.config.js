@@ -4,6 +4,7 @@ const path = require('path');
 
 module.exports = defineConfig({
   plugins: [vue()],
+  base: './',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src')
