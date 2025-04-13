@@ -32,11 +32,18 @@ import VLazyImage from 'v-lazy-image'
 import { createRouter, createWebHistory } from 'vue-router'
 import { usePokemonStore } from './stores/pokemon'
 
+// Tambahkan flag untuk melacak apakah aplikasi berhasil dimulai
+console.log('🚀 Starting application initialization...');
+window.appInitStarted = true;
+
 // Create the router instance
 const router = createRouter({
   history: createWebHistory(),
   routes
 })
+
+// Logging route setup
+console.log('📍 Router created with routes:', routes.length);
 
 // Create the Pinia store with debuggin
 const pinia = createPinia()
@@ -54,11 +61,13 @@ pinia.use(({ store }) => {
 
 // Create the Vue app
 const app = createApp(App)
+console.log('📱 Vue app created');
 
 // Use plugins
 app.use(pinia)
 app.use(router)
 app.use(VLazyImage)
+console.log('🔌 Plugins registered: pinia, router, VLazyImage');
 
 // Inisialisasi Pokemon Store sebelum aplikasi dimulai
 const initializeStore = async () => {
@@ -106,6 +115,16 @@ app.config.errorHandler = (err, vm, info) => {
   console.error('Component:', vm)
   console.error('Info:', info)
 
+  // Tambahkan error ke window untuk debugging
+  if (!window.vueErrors) window.vueErrors = [];
+  window.vueErrors.push({
+    error: err,
+    message: err.message,
+    component: vm?.$options?.name || 'Unknown component',
+    info,
+    time: new Date().toISOString()
+  });
+
   // Pesan error yang lebih ramah pengguna
   if (err.message && err.message.includes('pokemon')) {
     console.log('Mencoba memulihkan dari error Pokemon...')
@@ -119,8 +138,16 @@ app.config.errorHandler = (err, vm, info) => {
 }
 
 // Inisialisasi store terlebih dahulu, kemudian pasang aplikasi
+console.log('🔄 Starting store initialization...');
 initializeStore().then(() => {
   // Mount the app
+  console.log('🔄 Store initialized, mounting app to #app element...');
   app.mount('#app')
   console.log('🎮 Aplikasi berhasil dimulai')
-})
+  window.appMounted = true;
+}).catch(err => {
+  console.error('💥 Fatal error during app initialization:', err);
+  // Tetap mounting app untuk menampilkan fallback UI
+  app.mount('#app');
+  window.appMountedWithErrors = true;
+});
