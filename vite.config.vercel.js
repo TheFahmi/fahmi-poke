@@ -1,89 +1,95 @@
-// Simplified Vite config for Vercel
-const { defineConfig } = require('vite');
-const vue = require('@vitejs/plugin-vue');
-const path = require('path');
-const fs = require('fs');
-
-// Log environment information
-console.log('Node.js version:', process.version);
-console.log('Current directory:', process.cwd());
-
+// Use try-catch to handle potential errors
 try {
+  const { defineConfig } = require('vite');
+  const vue = require('@vitejs/plugin-vue');
+  const path = require('path');
+  const fs = require('fs');
+
+  // Log environment information
+  console.log('Node.js version:', process.version);
+  console.log('Current directory:', process.cwd());
   console.log('Available files:', fs.readdirSync('.').join(', '));
-} catch (e) {
-  console.error('Error listing files:', e.message);
-}
 
-// Check if src directory exists
-let srcPath = path.resolve(__dirname, './src');
-let srcExists = false;
-
-try {
-  srcExists = fs.existsSync(srcPath);
+  // Check if src directory exists
+  const srcPath = path.resolve(__dirname, './src');
+  const srcExists = fs.existsSync(srcPath);
   console.log('src directory exists:', srcExists);
-} catch (e) {
-  console.error('Error checking src directory:', e.message);
-}
 
-// If src doesn't exist, try alternative paths
-if (!srcExists) {
-  const altPaths = [
-    path.resolve(process.cwd(), './src'),
-    path.resolve(process.cwd(), '../src'),
-    path.resolve(process.cwd(), '../../src')
-  ];
-
-  for (const altPath of altPaths) {
-    try {
-      if (fs.existsSync(altPath)) {
-        srcPath = altPath;
-        srcExists = true;
-        console.log('Found src directory at alternative path:', srcPath);
-        break;
-      }
-    } catch (e) {
-      console.error('Error checking alternative path:', altPath, e.message);
-    }
-  }
-}
-
-// This is a simplified Vite config for Vercel with maximum compatibility
-module.exports = defineConfig({
-  plugins: [vue()],
-  base: './',
-  resolve: {
-    alias: {
-      '@': srcPath
-    }
-  },
-  build: {
-    // Target ES2015 for maximum compatibility
-    target: 'es2015',
-    // Use terser for minification
-    minify: 'terser',
-    // Disable features that might cause issues
-    terserOptions: {
-      compress: {
-        keep_infinity: true,
-        passes: 1
+  // This is a special Vite config for Vercel with maximum compatibility
+  const config = {
+    plugins: [vue()],
+    base: './',
+    resolve: {
+      alias: {
+        '@': srcPath
       }
     },
-    // Handle crypto module issues
-    rollupOptions: {
-      external: ['crypto'],
-      output: {
-        manualChunks: undefined
+    // Compatibility settings for Node.js 16
+    build: {
+      target: 'es2015',
+      minify: 'terser',
+      terserOptions: {
+        format: {
+          // Pastikan sintaks ES modules tetap konsisten
+          ecma: 2015,
+          comments: false
+        },
+        compress: {
+          // Disable features that might cause issues
+          keep_infinity: true,
+          passes: 1
+        }
+      },
+      rollupOptions: {
+        external: ['crypto'],
+        output: {
+          // Pastikan nama file output konsisten
+          entryFileNames: 'assets/[name]-[hash].js',
+          chunkFileNames: 'assets/[name]-[hash].js',
+          assetFileNames: 'assets/[name]-[hash].[ext]',
+          // Hindari chunking yang tidak perlu
+          manualChunks: undefined
+        }
+      }
+    },
+    define: {
+      'process.env': {}
+    },
+    optimizeDeps: {
+      esbuildOptions: {
+        target: 'es2015'
       }
     }
-  },
-  // Fix for process.env references
-  define: {
-    'process.env': {}
-  },
-  // Optimize dependencies for ES2015
-  optimizeDeps: {
-    esbuildOptions: {
-      target: 'es2015'
-    }
+  };
+
+  console.log('Vite config created successfully');
+  module.exports = defineConfig(config);
+} catch (error) {
+  console.error('Error in vite.config.vercel.js:', error);
+
+  // Provide a minimal fallback config
+  try {
+    const { defineConfig } = require('vite');
+    const vue = require('@vitejs/plugin-vue');
+
+    console.log('Using minimal fallback config');
+    module.exports = defineConfig({
+      plugins: [vue()],
+      base: './',
+      build: {
+        minify: 'terser',
+        rollupOptions: {
+          output: {
+            entryFileNames: 'assets/[name]-[hash].js',
+            chunkFileNames: 'assets/[name]-[hash].js',
+            assetFileNames: 'assets/[name]-[hash].[ext]'
+          }
+        }
+      }
+    });
+  } catch (fallbackError) {
+    console.error('Error creating fallback config:', fallbackError);
+    // Export an empty object as a last resort
+    module.exports = {};
   }
-});
+}
