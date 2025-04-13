@@ -36,23 +36,41 @@
     .logo {
       max-width: 300px;
       margin-bottom: 2rem;
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
     }
     .button {
-      background-color: #ffcb05;
+      display: inline-block;
+      background-color: white;
       color: #3c5aa6;
-      border: none;
       padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      font-weight: bold;
-      border-radius: 2rem;
-      cursor: pointer;
+      border-radius: 0.5rem;
       text-decoration: none;
+      font-weight: bold;
       transition: all 0.3s ease;
+      margin: 0 0.5rem;
     }
     .button:hover {
-      background-color: white;
-      transform: translateY(-3px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      background-color: #ffcb05;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    .button-secondary {
+      background-color: transparent;
+      border: 2px solid white;
+      color: white;
+    }
+    .button-secondary:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    .pikachu {
+      width: 150px;
+      animation: float 3s ease-in-out infinite;
+      margin-top: 2rem;
     }
   </style>
 </head>
@@ -62,7 +80,13 @@
     <h1>Pokémon Explorer</h1>
     <p>We're currently experiencing some technical difficulties with our application. Our team is working to resolve the issue as quickly as possible.</p>
     <p>Please check back soon!</p>
-    <a href="/" class="button">Refresh Page</a>
+    <div>
+      <a href="/" class="button">Refresh Page</a>
+      <a href="https://github.com/TheFahmi/fahmi-poke" class="button button-secondary">View on GitHub</a>
+    </div>
+    <div>
+      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" alt="Pikachu" class="pikachu">
+    </div>
   </div>
 </body>
 </html>
