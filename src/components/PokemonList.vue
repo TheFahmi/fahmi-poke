@@ -1,211 +1,283 @@
 <template>
-  <div class="grid grid-cols-2 gap-3 w-full md:grid-cols-3 md:gap-5 min-h-screen">
-    <div class="w-full rounded-lg overflow-hidden shadow-lg mx-auto cursor-pointer hover:shadow-2xl transition-all duration-200 ease-in-out transform hover:-translate-y-2 bg-white"
-      v-for="(pokemon, index) in pokemons"
-      :key="'poke' + index"
-    >
-      <div  @click="setPokemonUrl(pokemon.url)" class="py-4 md:py-10 mx-auto w-full flex items-center justify-center relative">
-        <v-lazy-image :src="`${imageUrl}${pokemon.id}.png`" />
-      </div>
-      <div class="bg-gray-100 w-full pt-5 pb-8 text-center">
-        <h1 class="capitalize font-semibold text-md md:text-3xl mb-2">
-          {{ pokemon.name }}
-        </h1>
-        <div class="flex justify-around items-center">
-          <div class="font-bold uppercase text-xl">
-            # {{ pokemon.id }}
-          </div>
-          <async-like-button 
-            :liked="pokemon.isLike"
-            @click="likeMe(pokemon)"
-          />
-        </div>
+  <div v-if="localPokemons && localPokemons.length > 0">
+    <div class="bg-white/20 backdrop-blur-md p-4 rounded-lg mb-4 text-xs overflow-auto">
+      <p>Debug: Menampilkan {{ localPokemons.length }} pokemon</p>
+      <pre v-if="localPokemons[0]">First Pokemon: {{ JSON.stringify(localPokemons[0], null, 2).substring(0, 200) + '...' }}</pre>
+    </div>
 
-      </div>
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 max-w-7xl mx-auto">
+      <PokemonCard
+        v-for="(pokemon, index) in localPokemons"
+        :key="pokemon.id || index"
+        :pokemon="pokemon"
+        @select-pokemon="selectPokemon"
+        @view-details="viewDetails"
+        @toggle-favorite="handleToggleFavorite"
+      />
     </div>
-    <div id="scroll-trigger" ref="infinitescrolltrigger">
-      <i class="fas fa-spinner fa-spin"></i>
+    
+    <!-- Loading Skeletons for Next Batch -->
+    <div v-if="pokemonStore.isLoading && pokemonStore.nextUrl" class="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 max-w-7xl mx-auto mt-6">
+      <PokemonSkeleton v-for="n in 5" :key="`next-skeleton-${n}`" />
     </div>
+  </div>
+  <div v-else-if="isLoading" class="mt-8">
+    <!-- Initial Skeleton Loading -->
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 max-w-7xl mx-auto">
+      <PokemonSkeleton v-for="n in 10" :key="`initial-skeleton-${n}`" />
+    </div>
+  </div>
+  <div v-else class="text-center py-16 bg-white/10 backdrop-blur-md rounded-2xl shadow-lg mt-8">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-white/50 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <h3 class="text-xl font-bold text-white mb-2">No Pokemon Data Available</h3>
+    <p class="text-white/70 max-w-md mx-auto mb-6">Try refreshing the page or check your connection.</p>
+    <pre class="bg-white/20 backdrop-blur-md p-4 rounded-lg mb-4 mx-auto max-w-lg text-xs overflow-auto text-white">
+      Debug:
+      Props: {{ props.pokemons ? JSON.stringify(props.pokemons.length) : 'undefined' }}
+      Local: {{ localPokemons ? localPokemons.length : 0 }}
+    </pre>
+    <button
+      @click="retryLoading"
+      class="bg-white hover:bg-gray-100 text-primary-700 font-medium py-2 px-6 rounded-full shadow-md transition-all duration-200"
+    >
+      Retry Loading
+    </button>
   </div>
 </template>
 
-<script>
-import VLazyImage from 'v-lazy-image'
-import Loading from '@/components/Loading.vue'
-import { defineAsyncComponent, ref, onMounted, watch } from 'vue'
+<script setup>
+import { ref, onMounted, watch } from 'vue'
+import { usePokemonStore } from '@/stores/pokemon'
+import PokemonCard from './PokemonCard.vue'
+import PokemonSkeleton from './PokemonSkeleton.vue'
 
-const AsyncLikeButton = defineAsyncComponent({
-    loader: () => import("@/components/LikeButton.vue"),
-    loadingComponent : Loading,
-    delay:200,
-    suspensible: false,
+// Define props and emits
+const props = defineProps({
+  pokemons: {
+    type: Array,
+    default: () => []
+  }
 })
 
-export default {
-  components: {
-    AsyncLikeButton,
-    VLazyImage
-  },
-  props: {
-    imageUrl: String,
-    apiUrl: String,
-    pokeType: String
-  },
-  setup(_props, { emit, refs }){
-    let pokemons = ref([])
-    let nextUrl = ref('')
-    let currentUrl = ref('')
-    let likeData = ref([])
-    const infinitescrolltrigger = ref(null)
+const emit = defineEmits(['select-pokemon'])
 
-    const likeMe = (itemPokemon) => {
-      let tempData = []
-      tempData = JSON.parse(localStorage.getItem('likeStorage'))
+// Local state
+const localPokemons = ref([])
 
-      if (!tempData.length) {
-        const saveData = {
-          ...itemPokemon,
-          isLike: true
-        }
-        tempData.push(saveData)
-      } else {
-        if (!tempData.find(poke => poke.id === itemPokemon.id)) {
-          const saveData = {
-            ...itemPokemon,
-            isLike: true
-          }
-          tempData.push(saveData)
-        } else {
-          tempData = tempData.filter((poke) => poke.id !== itemPokemon.id)
-        }
-      }
-      localStorage.setItem('likeStorage', JSON.stringify(tempData))
-      likeData.value = tempData
-      convertIsLike()
-    }
+// Get store
+const pokemonStore = usePokemonStore()
+const { toggleFavorite, IMAGE_URL, fetchPokemons, fetchPokemonTypes } = pokemonStore
 
-    const fetchData = () => {
-      if (!currentUrl.value) return
-      let req = new Request(`${currentUrl.value}pokemon`)
-      fetch(req)
-        .then((resp) => {
-          if (resp.status === 200) return resp.json()
-        })
-        .then((data) => {
-          nextUrl.value = data.next
-          data.results.forEach((pokemon) => {
-            pokemon.id = pokemon.url
-              .split("/")
-              .filter(function (part) {
-                return !!part
-              })
-              .pop()
-            pokemons.value.push(pokemon)
-          })
-          convertIsLike()
-        })
-        .catch((error) => {
-          console.log(error)
-        })
-    } 
+// Watch for changes in props.pokemons
+watch(() => props.pokemons, (newPokemons) => {
+  console.log('PokemonList received new data:', newPokemons?.length || 0, 'pokemon')
+  if (newPokemons && Array.isArray(newPokemons)) {
+    localPokemons.value = [...newPokemons]
+    console.log('PokemonList localPokemons updated:', localPokemons.value.length, 'items')
+    console.log('First pokemon:', localPokemons.value[0])
+  }
+}, { immediate: true, deep: true })
 
-    const convertIsLike = () => {
-      const likeStorage = JSON.parse(localStorage.getItem('likeStorage'))
-      pokemons.value = pokemons.value.map((pokeResult) => {
-        const isLike = likeStorage.find((pokeStorage) => pokeResult.id === pokeStorage.id)
-        return {
-          ...pokeResult,
-          isLike: !!Object.keys(isLike || {}).length
-        }
-      })
-    } 
+// Methods
+const getPokemonImage = (pokemon) => {
+  // Check if pokemon exists
+  if (!pokemon) return `${IMAGE_URL}0.png`
 
-    const scrollTrigger = () => {
-      // const infinitescrolltrigger = document.querySelector('#scroll-trigger');
-      // const observer = new IntersectionObserver((entries) => {
-      //   entries.forEach((entry) => {
-      //     if (entry.intersectionRatio > 0 && nextUrl) {
-      //       next()
-      //     }
-      //   })
-      // })
-      // observer.observe(infinitescrolltrigger)
-    }
-  
-    const next = () => {
-      currentUrl.value = nextUrl.value
-      fetchData()
-    }
+  // Try to get official artwork first
+  if (pokemon.sprites?.other?.['official-artwork']?.front_default) {
+    return pokemon.sprites.other['official-artwork'].front_default
+  }
 
-    const setPokemonUrl = (url) => {
-      emit("setPokemonUrl", url)
-    }
+  // Fall back to regular sprite
+  if (pokemon.sprites?.front_default) {
+    return pokemon.sprites.front_default
+  }
 
-    onMounted(() => {
-      currentUrl.value = _props.apiUrl
-      scrollTrigger()
-      fetchData()
-      const likeData = JSON.parse(localStorage.getItem('likeStorage'))
-      if (!likeData) localStorage.setItem('likeStorage', JSON.stringify([]))
-    })
-
-    watch(
-      () => _props.pokeType,
-      async () => {
-      pokemons.value = []
-      let req = new Request(`${_props.apiUrl}type/${_props.pokeType}`)
-      fetch(req)
-        .then((resp) => {
-          if (resp.status === 200) return resp.json()
-        })
-        .then((data) => {
-          nextUrl.value = data.next
-          data.pokemon.forEach((poke) => {
-            poke.pokemon.id = poke.pokemon.url
-              .split("/")
-              .filter(function (part) {
-                return !!part
-              })
-              .pop()
-
-            pokemons.value.push(poke.pokemon)            
-          })
-          convertIsLike()
-        })
-        .catch((error) => {
-          console.log(error)
-        })
-      }
-    )
-
-    return {
-      setPokemonUrl,
-      next,
-      scrollTrigger,
-      convertIsLike,
-      fetchData,
-      likeMe,
-      likeData,
-      currentUrl,
-      nextUrl,
-      pokemons,
-      infinitescrolltrigger
-
-    }
-  } 
+  // Last resort, use the ID to construct URL
+  return `${IMAGE_URL}${pokemon.id || '0'}.png`
 }
+
+// Get the primary type of a Pokemon for styling
+const getPrimaryType = (pokemon) => {
+  if (!pokemon?.types?.length) return 'normal'
+  return pokemon.types[0].type?.name || 'normal'
+}
+
+// Methods to interact with Pokemon
+const selectPokemon = (pokemon) => {
+  if (pokemon) {
+    emit('select-pokemon', pokemon)
+  }
+}
+
+const viewDetails = (pokemon) => {
+  if (pokemon) {
+    emit('select-pokemon', pokemon)
+  }
+}
+
+const handleToggleFavorite = (pokemon) => {
+  // The toggle is already handled in the PokemonCard component
+  // This is just to handle any additional logic if needed
+  console.log('Toggled favorite status for:', pokemon.name)
+}
+
+// Manually load data if props is empty
+const loadDataDirectly = () => {
+  console.log('Loading data directly from store in PokemonList')
+  // First check if we already have data in our local state
+  if (localPokemons.value && localPokemons.value.length > 0) {
+    console.log('Already have local data, not loading')
+    return
+  }
+
+  // Try to get data directly from store
+  const storeData = pokemonStore.pokemons
+  console.log('Direct store access - pokemons:', storeData ? storeData.length : 0)
+
+  if (storeData && Array.isArray(storeData) && storeData.length > 0) {
+    console.log('Got data directly from store:', storeData.length, 'items')
+    localPokemons.value = [...storeData]
+  } else {
+    console.log('No data in store or empty array, fetching directly')
+    // Force fetch new data
+    pokemonStore.pokemons = []
+    fetchPokemons()
+
+    // Set a timer to check again after fetching
+    setTimeout(() => {
+      const freshData = pokemonStore.pokemons
+      if (freshData && Array.isArray(freshData) && freshData.length > 0) {
+        console.log('Got fresh data after fetch:', freshData.length, 'items')
+        localPokemons.value = [...freshData]
+      } else {
+        console.warn('Still no data after fetch, using emergency fallback')
+        // Use emergency fallback
+        localPokemons.value = [
+          {
+            id: '1',
+            name: 'bulbasaur (fallback)',
+            types: [{ type: { name: 'grass' } }],
+            sprites: {
+              other: { 'official-artwork': { front_default: `${IMAGE_URL}1.png` } }
+            }
+          },
+          {
+            id: '4',
+            name: 'charmander (fallback)',
+            types: [{ type: { name: 'fire' } }],
+            sprites: {
+              other: { 'official-artwork': { front_default: `${IMAGE_URL}4.png` } }
+            }
+          }
+        ]
+      }
+    }, 2000)
+  }
+}
+
+// Add retryLoading function
+const retryLoading = () => {
+  localPokemons.value = []
+  fetchPokemons()
+  fetchPokemonTypes()
+
+  setTimeout(() => {
+    loadDataDirectly()
+  }, 1000)
+}
+
+onMounted(() => {
+  console.log('PokemonList mounted, props:', props)
+  console.log('PokemonList mounted, receiving props.pokemons:', props.pokemons?.length || 0)
+
+  if (props.pokemons && Array.isArray(props.pokemons) && props.pokemons.length > 0) {
+    console.log('Setting localPokemons from props')
+    localPokemons.value = [...props.pokemons]
+    console.log('Initial localPokemons set to:', localPokemons.value.length, 'items')
+  } else {
+    console.warn('No pokemons received in props on mount, loading directly from store')
+    // Try to load data directly from store
+    loadDataDirectly()
+  }
+
+  // Always setup watcher even if we loaded directly
+  setTimeout(() => {
+    // Check if we still don't have data
+    if (!localPokemons.value || !localPokemons.value.length) {
+      console.warn('No data after 3 seconds, forcing data load')
+      loadDataDirectly()
+    }
+  }, 3000)
+})
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
+/* Pokemon type colors */
+.type-normal { background-color: #A8A878; }
+.type-fire { background-color: #F08030; }
+.type-water { background-color: #6890F0; }
+.type-grass { background-color: #78C850; }
+.type-electric { background-color: #F8D030; }
+.type-ice { background-color: #98D8D8; }
+.type-fighting { background-color: #C03028; }
+.type-poison { background-color: #A040A0; }
+.type-ground { background-color: #E0C068; }
+.type-flying { background-color: #A890F0; }
+.type-psychic { background-color: #F85888; }
+.type-bug { background-color: #A8B820; }
+.type-rock { background-color: #B8A038; }
+.type-ghost { background-color: #705898; }
+.type-dragon { background-color: #7038F8; }
+.type-dark { background-color: #705848; }
+.type-steel { background-color: #B8B8D0; }
+.type-fairy { background-color: #EE99AC; }
+.type-unknown { background-color: #68A090; }
 
-#scroll-trigger {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 150px;
-  font-size: 2rem;
-  color: #efefef;
+/* Type background colors (lighter versions) */
+.bg-normal-light { background-color: #C6C6A7; }
+.bg-fire-light { background-color: #F5AC78; }
+.bg-water-light { background-color: #9DB7F5; }
+.bg-grass-light { background-color: #A7DB8D; }
+.bg-electric-light { background-color: #FAE078; }
+.bg-ice-light { background-color: #BCE6E6; }
+.bg-fighting-light { background-color: #D67873; }
+.bg-poison-light { background-color: #C183C1; }
+.bg-ground-light { background-color: #EBD69D; }
+.bg-flying-light { background-color: #C6B7F5; }
+.bg-psychic-light { background-color: #FA92B2; }
+.bg-bug-light { background-color: #C6D16E; }
+.bg-rock-light { background-color: #D1C17D; }
+.bg-ghost-light { background-color: #A292BC; }
+.bg-dragon-light { background-color: #A27DFA; }
+.bg-dark-light { background-color: #A29288; }
+.bg-steel-light { background-color: #D1D1E0; }
+.bg-fairy-light { background-color: #F4BDC9; }
+.bg-unknown-light { background-color: #9DC1B7; }
+
+/* Card hover effect */
+.pokemon-card {
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.pokemon-card:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+  z-index: 1;
+}
+
+/* Add a subtle pulse animation to the Pokémon image on hover */
+.pokemon-card:hover img {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
 }
 </style>
 

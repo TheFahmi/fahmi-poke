@@ -1,121 +1,158 @@
 <template>
-  <div class="grid grid-cols-2 gap-3 w-full md:grid-cols-3 md:gap-5">
-    <div class="w-full rounded-lg overflow-hidden shadow-lg mx-auto cursor-pointer hover:shadow-2xl transition-all duration-200 ease-in-out transform hover:-translate-y-2 bg-white"
-      v-for="(pokemon, index) in likeData"
-      :key="'poke' + index"
-    >
-      <div  @click="setPokemonUrl(pokemon.url)" class="py-4 md:py-10 mx-auto w-full flex items-center justify-center relative">
-        <v-lazy-image :src="`${imageUrl}${pokemon.id}.png`" />
-      </div>
-      <div class="bg-gray-100 w-full pt-5 pb-8 text-center">
-        <h1 class="capitalize font-semibold text-md md:text-3xl mb-2">
-          {{ pokemon.name }}
-        </h1>
-        <div class="flex justify-around items-center">
-          <div class="font-bold uppercase text-xl">
-            # {{ pokemon.id }}
-          </div>
-          <async-like-button 
-            :liked="pokemon.isLike"
-            @click="likeMe(pokemon)"
-          />
-        </div>
-
-      </div>
+  <div class="max-w-7xl mx-auto">
+    <!-- Favorites Header -->
+    <div class="mb-8 text-center">
+      <h2 class="text-2xl font-bold text-white mb-2">Your Favorite Pokémon</h2>
+      <p class="text-white/80">Manage your collection of favorite Pokémon</p>
     </div>
-  </div>
-  <div v-if="!likeData.length" id="scroll-trigger" ref="infinitescrolltrigger">
-    <img src="../assets/no-result.png" width="200"/>
+
+    <!-- Favorites Grid -->
+    <div v-if="favorites.length > 0" class="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      <PokemonCard
+        v-for="pokemon in favorites"
+        :key="pokemon.id"
+        :pokemon="pokemon"
+        @select-pokemon="selectPokemon"
+        @view-details="viewDetails"
+        @toggle-favorite="handleToggleFavorite"
+      />
+    </div>
+
+    <!-- Skeleton Loading -->
+    <div v-else-if="isLoading" class="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      <PokemonSkeleton v-for="n in 6" :key="n" />
+    </div>
+
+    <!-- Empty State -->
+    <div v-else class="flex flex-col items-center justify-center py-16 px-4 bg-white/10 backdrop-blur-sm rounded-xl">
+      <img src="../assets/no-result.svg" alt="No favorites" class="w-40 h-40 mb-6 animate-bounce-slow" />
+      <h3 class="text-xl font-bold text-white mb-2">No Favorites Yet</h3>
+      <p class="text-white/80 text-center mb-6">You haven't added any Pokémon to your favorites yet.</p>
+      <button
+        @click.prevent.stop="goToAllPokemon"
+        class="inline-block px-6 py-2 bg-white text-primary-700 font-medium rounded-full shadow-md hover:bg-gray-100 transition-colors text-center"
+      >
+        Browse Pokémon
+      </button>
+    </div>
   </div>
 </template>
 
-<script>
-import VLazyImage from 'v-lazy-image'
-import Loading from '@/components/Loading.vue'
-import { defineAsyncComponent, ref, onMounted } from "vue"
+<script setup>
+import { computed, onMounted, ref } from 'vue'
+import { usePokemonStore } from '@/stores/pokemon'
+import PokemonCard from './PokemonCard.vue'
+import PokemonSkeleton from './PokemonSkeleton.vue'
 
-const AsyncLikeButton = defineAsyncComponent({
-    loader: () => import("@/components/LikeButton.vue"),
-    loadingComponent : Loading,
-    delay:200,
-    suspensible: false,
-})
+// Define emits
+const emit = defineEmits(['select-pokemon', 'change-tab'])
 
-export default {
-  components: {
-    AsyncLikeButton,
-    VLazyImage
-  },
-  props: {
-    imageUrl: String,
-    apiUrl: String
-  },
-  setup(_props, { emit, refs }){
-    let pokemons = ref([])
-    let nextUrl = ref('')
-    let currentUrl = ref('')
-    let likeData = ref([])
-    const infinitescrolltrigger = ref(null)
+// Get store
+const pokemonStore = usePokemonStore()
+const {
+  favorites,
+  toggleFavorite,
+  loadFavorites,
+  IMAGE_URL,
+  isLoading
+} = pokemonStore
 
-    const likeMe = (itemPokemon) => {
-      let tempData = []
-      tempData = JSON.parse(localStorage.getItem('likeStorage'))
-
-      if (!tempData.length) {
-        tempData.push(itemPokemon)
-      } else {
-        if (!tempData.find(poke => poke.id === itemPokemon.id)) {
-          tempData.push(itemPokemon)
-        } else {
-          tempData = tempData.filter((poke) => poke.id !== itemPokemon.id)
-        }
-      }
-      likeData.value = tempData
-      localStorage.setItem('likeStorage', JSON.stringify(tempData))
-      convertIsLike()
-    }
-
-    const convertIsLike = () => {
-      const likeStorage = JSON.parse(localStorage.getItem('likeStorage'))
-      pokemons.value = pokemons.value.map((pokeResult) => {
-        const isLike = likeStorage.find((pokeStorage) => pokeResult.id === pokeStorage.id)
-        return {
-          ...pokeResult,
-          isLike: !!Object.keys(isLike || {}).length
-        }
-      })
-    } 
-
-
-    onMounted(() => {
-      likeData.value = JSON.parse(localStorage.getItem('likeStorage'))
-      // if (!likeData) localStorage.setItem('likeStorage', JSON.stringify(likeData))
-    })
-
-    return {
-      convertIsLike,
-      likeMe,
-      likeData,
-      currentUrl,
-      nextUrl,
-      pokemons,
-      infinitescrolltrigger
-
-    }
-  } 
+// Methods
+const selectPokemon = (pokemon) => {
+  emit('select-pokemon', pokemon)
 }
+
+const viewDetails = (pokemon) => {
+  emit('select-pokemon', pokemon)
+}
+
+const handleToggleFavorite = (pokemon) => {
+  console.log('Toggling favorite status for:', pokemon.name)
+  
+  // Panggil fungsi toggleFavorite di store untuk update status
+  toggleFavorite(pokemon)
+  
+  // Re-load daftar favorit untuk memastikan UI terupdate
+  // Gunakan timeout untuk memastikan perubahan state sudah selesai
+  setTimeout(() => {
+    loadFavorites()
+    console.log('Favorites updated, current count:', favorites.length)
+  }, 100)
+}
+
+const goToAllPokemon = () => {
+  console.log('Navigating to All Pokemon from Favorites')
+  try {
+    // Use a direct approach to change the tab
+    const event = new CustomEvent('change-pokemon-tab', { detail: 'listPokemon' })
+    document.dispatchEvent(event)
+
+    // Also emit the event for backward compatibility
+    emit('change-tab', 'listPokemon')
+  } catch (error) {
+    console.error('Error navigating to All Pokemon:', error)
+  }
+}
+
+const getPokemonImage = (pokemon) => {
+  // Try to get official artwork first
+  if (pokemon.sprites?.other?.['official-artwork']?.front_default) {
+    return pokemon.sprites.other['official-artwork'].front_default
+  }
+
+  // Fall back to regular sprite
+  if (pokemon.sprites?.front_default) {
+    return pokemon.sprites.front_default
+  }
+
+  // Last resort, use the ID to construct URL
+  return `${IMAGE_URL}${pokemon.id}.png`
+}
+
+// Load favorites on mount
+onMounted(() => {
+  // Set loading state
+  pokemonStore.isLoading = true
+
+  // Load favorites
+  loadFavorites()
+
+  // Simulate loading delay for better UX
+  setTimeout(() => {
+    pokemonStore.isLoading = false
+  }, 1000)
+})
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
+/* Pokemon type colors */
+.type-normal { background-color: #A8A878; }
+.type-fire { background-color: #F08030; }
+.type-water { background-color: #6890F0; }
+.type-grass { background-color: #78C850; }
+.type-electric { background-color: #F8D030; }
+.type-ice { background-color: #98D8D8; }
+.type-fighting { background-color: #C03028; }
+.type-poison { background-color: #A040A0; }
+.type-ground { background-color: #E0C068; }
+.type-flying { background-color: #A890F0; }
+.type-psychic { background-color: #F85888; }
+.type-bug { background-color: #A8B820; }
+.type-rock { background-color: #B8A038; }
+.type-ghost { background-color: #705898; }
+.type-dragon { background-color: #7038F8; }
+.type-dark { background-color: #705848; }
+.type-steel { background-color: #B8B8D0; }
+.type-fairy { background-color: #EE99AC; }
 
-#scroll-trigger {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 150px;
-  font-size: 2rem;
-  color: #efefef;
+/* Card hover effect */
+.pokemon-card {
+  transition: all 0.3s ease;
+}
+
+.pokemon-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 </style>
 
