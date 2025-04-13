@@ -11,5 +11,15 @@ module.exports = defineConfig({
   },
   server: {
     port: 3000
+  },
+  build: {
+    // Fix for crypto.getRandomValues() issue on Vercel
+    rollupOptions: {
+      external: ['crypto'],
+    },
+  },
+  define: {
+    // Fix for crypto.getRandomValues() issue on Vercel
+    'process.env': {}
   }
 });
