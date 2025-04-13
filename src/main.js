@@ -1,14 +1,26 @@
 // Polyfill for crypto.getRandomValues
-if (typeof window !== 'undefined' && !window.crypto) {
-  window.crypto = {};
-}
-if (typeof window !== 'undefined' && !window.crypto.getRandomValues) {
-  window.crypto.getRandomValues = function(array) {
-    for (let i = 0; i < array.length; i++) {
-      array[i] = Math.floor(Math.random() * 256);
-    }
-    return array;
-  };
+if (typeof window !== 'undefined') {
+  if (!window.crypto) {
+    window.crypto = {};
+  }
+
+  if (!window.crypto.getRandomValues) {
+    window.crypto.getRandomValues = function(array) {
+      const getRandomValue = () => Math.floor(Math.random() * 256);
+
+      if (array instanceof Uint8Array) {
+        for (let i = 0; i < array.length; i++) {
+          array[i] = getRandomValue();
+        }
+      } else if (Array.isArray(array)) {
+        for (let i = 0; i < array.length; i++) {
+          array[i] = getRandomValue();
+        }
+      }
+
+      return array;
+    };
+  }
 }
 
 import { createApp } from 'vue'
