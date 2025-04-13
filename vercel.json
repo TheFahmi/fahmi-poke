@@ -5,10 +5,7 @@
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist",
-        "buildCommand": "bash ./build.sh",
-        "installCommand": "echo 'Skipping install command, using custom build script'",
-        "nodeVersion": "18.x"
+        "distDir": "dist"
       }
     }
   ],
