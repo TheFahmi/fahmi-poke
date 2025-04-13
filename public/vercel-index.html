@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokédex - Vercel Edition</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #ffcb05, #3c5aa6);
+      color: white;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .container {
+      max-width: 800px;
+      padding: 2rem;
+      background-color: rgba(0, 0, 0, 0.3);
+      border-radius: 1rem;
+      backdrop-filter: blur(10px);
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+    .button {
+      display: inline-block;
+      background-color: white;
+      color: #3c5aa6;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+    }
+    .button:hover {
+      background-color: #ffcb05;
+      transform: translateY(-2px);
+    }
+    #app-container {
+      margin-top: 2rem;
+      width: 100%;
+      max-width: 1200px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Pokédex Vercel Edition</h1>
+    <p>Halaman ini adalah versi fallback untuk Vercel deployment.</p>
+    <p>Mencoba memuat aplikasi Vue...</p>
+    
+    <div id="debug-info">
+      <p>Status: <span id="status">Loading...</span></p>
+      <p>Error: <span id="error">None</span></p>
+    </div>
+    
+    <button class="button" onclick="location.reload()">Refresh Halaman</button>
+  </div>
+  
+  <div id="app"></div>
+
+  <!-- Script yang akan memuat aplikasi Vue -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Update status
+      const statusEl = document.getElementById('status');
+      const errorEl = document.getElementById('error');
+      
+      statusEl.textContent = 'DOM Loaded, checking for assets...';
+      
+      // Fungsi untuk memuat script aplikasi
+      function loadApp() {
+        statusEl.textContent = 'Memuat aplikasi...';
+        
+        // Fungsi untuk menemukan file JS secara dinamis
+        function findJsFiles() {
+          statusEl.textContent = 'Mencari file JS...';
+          
+          // Coba beberapa pola nama file
+          return fetch('./assets/')
+            .then(response => response.text())
+            .then(html => {
+              // Coba ekstrak file JS dari direktori listing
+              const jsFiles = html.match(/href="([^"]+\.js)"/g) || [];
+              if (jsFiles.length > 0) {
+                // Ambil file terbesar (kemungkinan main bundle)
+                return jsFiles[0].replace('href="', '').replace('"', '');
+              }
+              
+              // Jika tidak bisa menemukan, coba cara lain
+              return './assets/index.js';
+            })
+            .catch(() => {
+              // Fallback ke nama file statis jika gagal
+              const possibleNames = [
+                './assets/index.js',
+                './assets/main.js',
+                './assets/app.js',
+                './assets/index-ed9e77ef.js',
+                './assets/index-bff76424.js'
+              ];
+              
+              // Coba semua kemungkinan nama file
+              return Promise.all(
+                possibleNames.map(name => 
+                  fetch(name)
+                    .then(response => ({ name, ok: response.ok }))
+                    .catch(() => ({ name, ok: false }))
+                )
+              ).then(results => {
+                const found = results.find(r => r.ok);
+                return found ? found.name : './assets/index.js';
+              });
+            });
+        }
+        
+        // Gunakan fungsi untuk menemukan dan memuat JS
+        findJsFiles()
+          .then(jsFile => {
+            statusEl.textContent = `Menemukan file JS: ${jsFile}`;
+            
+            // Buat element script
+            const script = document.createElement('script');
+            script.type = 'module';
+            script.src = jsFile;
+            script.onload = () => {
+              statusEl.textContent = 'JS berhasil dimuat!';
+            };
+            script.onerror = (e) => {
+              statusEl.textContent = 'Gagal memuat JS!';
+              errorEl.textContent = e.message || 'Unknown script error';
+              console.error('Script loading error:', e);
+            };
+            
+            // Tambahkan ke head
+            document.head.appendChild(script);
+            
+            // Coba temukan CSS secara dinamis juga
+            fetch('./assets/')
+              .then(response => response.text())
+              .then(html => {
+                const cssFiles = html.match(/href="([^"]+\.css)"/g) || [];
+                if (cssFiles.length > 0) {
+                  const cssFile = cssFiles[0].replace('href="', '').replace('"', '');
+                  const link = document.createElement('link');
+                  link.rel = 'stylesheet';
+                  link.href = cssFile;
+                  document.head.appendChild(link);
+                  console.log('CSS loaded:', cssFile);
+                }
+              })
+              .catch(err => console.error('CSS search error:', err));
+          })
+          .catch(err => {
+            statusEl.textContent = 'Gagal mencari JS!';
+            errorEl.textContent = err.message;
+            console.error('JS search error:', err);
+          });
+      }
+      
+      // Jalankan fungsi load app
+      setTimeout(loadApp, 1000);
+      
+      // Tambahkan checker untuk elemen app
+      setTimeout(() => {
+        const appEl = document.getElementById('app');
+        if (appEl && appEl.children.length === 0) {
+          statusEl.textContent = 'Gagal merender aplikasi Vue!';
+          errorEl.textContent = 'App container kosong setelah 5 detik';
+        }
+      }, 5000);
+    });
+  </script>
+</body>
+</html> 

@@ -13,14 +13,21 @@ module.exports = defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-    minify: false,
+    minify: 'terser',
     sourcemap: false,
-    // Avoid any advanced features
+    // Target lowest common denominator for maksimum kompatibilitas
     target: 'es2015',
     // Avoid chunking
     rollupOptions: {
       output: {
         manualChunks: undefined
+      }
+    },
+    terserOptions: {
+      compress: {
+        // Disable fitur yang mungkin menyebabkan masalah
+        keep_infinity: true,
+        passes: 1
       }
     }
   }

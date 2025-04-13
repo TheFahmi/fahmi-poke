@@ -12,6 +12,27 @@
   ],
   "routes": [
     {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/assets/(.*)\\.js",
+      "headers": { "content-type": "application/javascript" },
+      "dest": "/assets/$1.js"
+    },
+    {
+      "src": "/assets/(.*)\\.css",
+      "headers": { "content-type": "text/css" },
+      "dest": "/assets/$1.css"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "/(.*\\.(js|css|ico|png|jpg|jpeg|svg|webp))",
+      "dest": "/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.html"
     }
