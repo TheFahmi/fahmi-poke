@@ -11,7 +11,8 @@
       "use": "@vercel/static-build",
       "config": {
         "distDir": "dist",
-        "buildCommand": "npm run vercel-build"
+        "buildCommand": "bash ./build.sh",
+        "installCommand": "echo 'Skipping install command, using custom build script'"
       }
     }
   ],
