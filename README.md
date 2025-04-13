@@ -77,6 +77,23 @@ npm run build
 yarn build
 ```
 
+### Deployment
+
+This project is configured for automatic deployment to Vercel. When you push to the main branch, GitHub Actions will automatically deploy your changes to Vercel.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FTheFahmi%2Ffahmi-poke)
+
+#### Setting up Vercel Deployment
+
+1. Fork this repository
+2. Create a Vercel account at [vercel.com](https://vercel.com) if you don't have one
+3. Import your forked repository in Vercel
+4. Add the following secrets to your GitHub repository:
+   - `VERCEL_TOKEN`: Your Vercel API token
+   - `VERCEL_ORG_ID`: Your Vercel organization ID
+   - `VERCEL_PROJECT_ID`: Your Vercel project ID
+5. Push to the main branch to trigger a deployment
+
 ## Project Structure
 
 ```
@@ -100,33 +117,6 @@ yarn build
 - [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
 - [Pinia](https://pinia.esm.dev/) - Intuitive, type safe store for Vue
 - [PokéAPI](https://pokeapi.co/) - RESTful Pokémon API
-
-## Screenshots
-
-<div align="center">
-  <p><strong>Splash Screen</strong></p>
-  <img src="https://i.imgur.com/placeholder1.png" alt="Splash Screen" width="80%">
-</div>
-
-<div align="center">
-  <p><strong>Main Pokémon List</strong></p>
-  <img src="https://i.imgur.com/placeholder2.png" alt="Main Pokémon List" width="80%">
-</div>
-
-<div align="center">
-  <p><strong>Skeleton Loading</strong></p>
-  <img src="https://i.imgur.com/placeholder3.png" alt="Skeleton Loading" width="80%">
-</div>
-
-<div align="center">
-  <p><strong>Favorites Page</strong></p>
-  <img src="https://i.imgur.com/placeholder4.png" alt="Favorites Page" width="80%">
-</div>
-
-<div align="center">
-  <p><strong>Pokémon Details</strong></p>
-  <img src="https://i.imgur.com/placeholder5.png" alt="Pokémon Details" width="80%">
-</div>
 
 ## Features in Detail
 
@@ -164,7 +154,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - [PokéAPI](https://pokeapi.co/) for providing the Pokémon data
 - [Pokémon](https://www.pokemon.com/) for the inspiration
-
----
-
-**Note:** The screenshot images in this README are placeholders. Replace them with actual screenshots of your application when available.
