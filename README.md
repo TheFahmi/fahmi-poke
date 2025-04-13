@@ -1,53 +1,170 @@
-# `Vite + Vue 3 + Tailwind CSS (starter) ⚡`
+# Pokémon Explorer App ⚡
 
-![Vite, Vue, Tailwind CSS](https://user-images.githubusercontent.com/11320080/111277027-a9384c00-8640-11eb-8323-21889bd7c609.png)
+<div align="center">
+  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" alt="Pokémon Explorer" width="200">
+</div>
 
-This starter template also includes:
+<div align="center">
+  <img src="https://img.shields.io/badge/vue.js-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white" alt="Vue.js">
+  <img src="https://img.shields.io/badge/tailwindcss-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS">
+  <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite">
+</div>
 
-- [Tailwind CSS v3.0.0-alpha ⚠](https://github.com/tailwindlabs/tailwindcss/releases/tag/v3.0.0-alpha.1)
-- [Vue Router 4.x](https://github.com/vuejs/vue-router-next)
-- [Inter var font](https://github.com/rsms/inter) (self-hosted, woff2, v3.19, with 'preload' attr, check out index.html)
-- [Headless UI](https://headlessui.dev/vue/menu) - unstyled, fully accessible UI components, designed to integrate beautifully with Tailwind CSS
-- [Heroicons](https://github.com/tailwindlabs/heroicons#vue) - beautiful hand-crafted SVG icons,
-by the makers of Tailwind CSS
+## Overview
 
-First-party plugins needed for Tailwind UI:
+Pokémon Explorer is a modern web application built with Vue 3 and Tailwind CSS that allows users to browse, search, and favorite Pokémon from the Pokémon universe. The app fetches data from the [PokéAPI](https://pokeapi.co/) and provides a beautiful, responsive interface for exploring Pokémon.
 
-- [tailwindcss/forms](https://github.com/tailwindlabs/tailwindcss-forms)
-- [tailwindcss/typography](https://github.com/tailwindlabs/tailwindcss-typography)
-- [tailwindcss/line-clamp](https://github.com/tailwindlabs/tailwindcss-line-clamp)
-- [tailwindcss/aspect-ratio](https://github.com/tailwindlabs/tailwindcss-aspect-ratio)
+## Features
 
-### Getting Started 🚀
+### Core Features
+- **Browse Pokémon**: View a list of Pokémon with infinite scroll loading
+- **Search**: Search for Pokémon by name
+- **Filter by Type**: Filter Pokémon by their types (Fire, Water, Grass, etc.)
+- **Favorites**: Add Pokémon to your favorites list for quick access
+- **Detailed View**: View detailed information about each Pokémon
 
-[![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/web2033/vite-vue3-tailwind-starter)
+### UI/UX Features
+- **Responsive Design**: Works on mobile, tablet, and desktop devices
+- **Splash Screen**: Engaging splash screen with animations when the app loads
+- **Skeleton Loading**: Skeleton placeholders while content is loading
+- **Animations**: Smooth animations for favoriting Pokémon and other interactions
+- **Glass Morphism**: Modern UI with glass-like effects
+- **Dark Mode**: Comfortable viewing in low-light environments
 
+### Technical Features
+- **Offline Support**: Fallback data when API is unavailable
+- **State Management**: Centralized state management with Pinia
+- **Lazy Loading**: Images and components load only when needed
+- **TypeScript Support**: Type safety throughout the application
+- **Optimized Performance**: Fast loading and rendering
+
+## Getting Started 🚀
+
+### Prerequisites
+
+- Node.js (v14 or higher)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository
 ```sh
-npx degit web2033/vite-vue3-tailwind-starter vvt-app
-cd vvt-app
+git clone https://github.com/TheFahmi/fahmi-poke.git
+cd fahmi-poke
 ```
 
-npm:
+2. Install dependencies
 ```sh
-npm i
+npm install
+# or
+yarn install
+```
+
+3. Start the development server
+```sh
 npm run dev
-npm run build
-npm run serve
-```
-
-yarn:
-```sh
-yarn
+# or
 yarn dev
-yarn build
-yarn serve
 ```
 
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/web2033/vite-vue3-tailwind-starter)
+4. Open your browser and navigate to `http://localhost:3000`
 
-#### Bonus links
-- [Enabling https on localhost](https://github.com/web2033/vite-vue3-tailwind-starter/discussions/112) (dev notes)
-- [Vite dev server with netlify dev support](https://github.com/web2033/vite-vue3-tailwind-starter/discussions/113) (dev notes)
-- [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar) - recommended (instead of Vetur) VSCode extension built specifically for Vue 3
-- [Pinia](https://pinia.esm.dev/introduction.html) - state-management alternative to Vuex 4 with a similar to upcoming Vuex 5 API
-- [VueUse](https://vueuse.org/functions.html) - collection of essential Vue Composition Utilities
+### Building for Production
+
+```sh
+npm run build
+# or
+yarn build
+```
+
+## Project Structure
+
+```
+/
+├── public/          # Static assets
+├── src/             # Source code
+│   ├── assets/      # Images and other assets
+│   ├── components/   # Vue components
+│   ├── stores/       # Pinia stores
+│   ├── App.vue       # Main app component
+│   └── main.js       # App entry point
+├── index.html       # HTML template
+├── package.json     # Project dependencies
+└── vite.config.js   # Vite configuration
+```
+
+## Technologies Used
+
+- [Vue 3](https://v3.vuejs.org/) - Progressive JavaScript framework
+- [Vite](https://vitejs.dev/) - Next-generation frontend tooling
+- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
+- [Pinia](https://pinia.esm.dev/) - Intuitive, type safe store for Vue
+- [PokéAPI](https://pokeapi.co/) - RESTful Pokémon API
+
+## Screenshots
+
+<div align="center">
+  <p><strong>Splash Screen</strong></p>
+  <img src="https://i.imgur.com/placeholder1.png" alt="Splash Screen" width="80%">
+</div>
+
+<div align="center">
+  <p><strong>Main Pokémon List</strong></p>
+  <img src="https://i.imgur.com/placeholder2.png" alt="Main Pokémon List" width="80%">
+</div>
+
+<div align="center">
+  <p><strong>Skeleton Loading</strong></p>
+  <img src="https://i.imgur.com/placeholder3.png" alt="Skeleton Loading" width="80%">
+</div>
+
+<div align="center">
+  <p><strong>Favorites Page</strong></p>
+  <img src="https://i.imgur.com/placeholder4.png" alt="Favorites Page" width="80%">
+</div>
+
+<div align="center">
+  <p><strong>Pokémon Details</strong></p>
+  <img src="https://i.imgur.com/placeholder5.png" alt="Pokémon Details" width="80%">
+</div>
+
+## Features in Detail
+
+### Infinite Scroll
+The app implements infinite scrolling to load more Pokémon as the user scrolls down the page, providing a seamless browsing experience without pagination.
+
+### Favoriting System
+Users can favorite Pokémon by clicking the heart icon. Favorited Pokémon are stored locally and can be viewed in the Favorites tab. The favoriting action includes a delightful animation with floating hearts.
+
+### Skeleton Loading
+While data is being fetched, the app displays skeleton loading placeholders that match the shape and size of the actual content, reducing perceived loading time.
+
+### Splash Screen
+A visually appealing splash screen with animations is displayed when the app first loads, creating an engaging first impression.
+
+### Responsive Design
+The app is fully responsive and works well on devices of all sizes, from mobile phones to desktop computers.
+
+## Contributing
+
+Contributions are welcome! Here's how you can contribute:
+
+1. Fork the repository
+2. Create a new branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Commit your changes (`git commit -m 'Add some amazing feature'`)
+5. Push to the branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgements
+
+- [PokéAPI](https://pokeapi.co/) for providing the Pokémon data
+- [Pokémon](https://www.pokemon.com/) for the inspiration
+
+---
+
+**Note:** The screenshot images in this README are placeholders. Replace them with actual screenshots of your application when available.
