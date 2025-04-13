@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512px" height="512px" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Pokeball</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Pokeball">
+            <circle id="Oval" fill="#FFFFFF" cx="256" cy="256" r="256"></circle>
+            <path d="M256,0 C114.844,0 0,114.844 0,256 C0,397.156 114.844,512 256,512 C397.156,512 512,397.156 512,256 C512,114.844 397.156,0 256,0 Z M256,42.667 C373.504,42.667 469.333,138.496 469.333,256 C469.333,373.504 373.504,469.333 256,469.333 C138.496,469.333 42.667,373.504 42.667,256 C42.667,138.496 138.496,42.667 256,42.667 Z" id="Shape" fill="#E20000" fill-rule="nonzero"></path>
+            <path d="M256,149.333 C197.099,149.333 149.333,197.099 149.333,256 L362.667,256 C362.667,197.099 314.901,149.333 256,149.333 Z" id="Path" fill="#E20000"></path>
+            <path d="M256,362.667 C314.901,362.667 362.667,314.901 362.667,256 L149.333,256 C149.333,314.901 197.099,362.667 256,362.667 Z" id="Path" fill="#FFFFFF"></path>
+            <circle id="Oval" stroke="#E20000" stroke-width="10" fill="#FFFFFF" cx="256" cy="256" r="42.667"></circle>
+            <circle id="Oval" fill="#E20000" cx="256" cy="256" r="21.333"></circle>
+        </g>
+    </g>
+</svg>
