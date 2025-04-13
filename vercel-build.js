@@ -1,14 +1,15 @@
 // This script is used by Vercel to build the project
 const { execSync } = require('child_process');
+const crypto = require('crypto');
 
 // Polyfill crypto for Node.js environment
 if (typeof global.crypto === 'undefined') {
-  global.crypto = require('crypto');
+  global.crypto = {};
 }
 
 if (typeof global.crypto.getRandomValues === 'undefined') {
   global.crypto.getRandomValues = function(array) {
-    return require('crypto').randomFillSync(array);
+    return crypto.randomFillSync(array);
   };
 }
 
