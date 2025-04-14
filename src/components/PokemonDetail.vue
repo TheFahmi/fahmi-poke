@@ -37,13 +37,14 @@
           </svg>
         </button>
 
-        <!-- Pokemon Image with Shadow -->
+        <!-- Pokemon Image with Shadow and Lazy Loading -->
         <div class="relative z-10 transform transition-all duration-700 hover:scale-110 drop-shadow-2xl">
-          <img
+          <LazyImage
             :src="getPokemonImage(pokemon)"
             :alt="pokemon.name"
-            class="h-48 w-48 object-contain"
-          >
+            imgClass="h-48 w-48 object-contain"
+            :fallbackSrc="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id || '0'}.png`"
+          />
           <div class="absolute -bottom-4 w-24 h-3 bg-black/20 rounded-full blur-sm mx-auto left-0 right-0"></div>
         </div>
 
@@ -536,6 +537,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { usePokemonStore } from '@/stores/pokemon'
+import LazyImage from './LazyImage.vue'
 
 // Define props and emits
 const props = defineProps({
