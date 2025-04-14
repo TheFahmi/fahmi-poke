@@ -15,9 +15,9 @@
         @toggle-favorite="handleToggleFavorite"
       />
     </div>
-    
+
     <!-- Loading Skeletons for Next Batch -->
-    <div v-if="pokemonStore.isLoading && pokemonStore.nextUrl" class="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 max-w-7xl mx-auto mt-6">
+    <div v-if="pokemonStore.isLoading" class="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 max-w-7xl mx-auto mt-6">
       <PokemonSkeleton v-for="n in 5" :key="`next-skeleton-${n}`" />
     </div>
   </div>

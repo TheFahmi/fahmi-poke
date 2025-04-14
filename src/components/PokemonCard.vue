@@ -47,12 +47,12 @@
 
     <!-- Pokemon Image Container -->
     <div class="relative h-48 flex items-center justify-center overflow-hidden bg-gradient-to-br from-white/5 to-white/20">
-      <!-- Pokemon Image -->
-      <img
+      <!-- Pokemon Image with Lazy Loading -->
+      <LazyImage
         :src="getPokemonImage(pokemon)"
         :alt="pokemon.name"
-        class="h-40 w-40 object-contain transition-all duration-500 group-hover:scale-110 drop-shadow-lg"
-        loading="lazy"
+        imgClass="h-40 w-40 object-contain transition-all duration-500 group-hover:scale-110 drop-shadow-lg"
+        :fallbackSrc="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id || '0'}.png`"
       />
 
       <!-- Type Badges on Image -->
@@ -103,6 +103,7 @@
 <script setup>
 import { ref } from 'vue'
 import { usePokemonStore } from '@/stores/pokemon'
+import LazyImage from './LazyImage.vue'
 
 // Props
 const props = defineProps({

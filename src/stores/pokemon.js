@@ -19,7 +19,7 @@ export const usePokemonStore = defineStore('pokemon', () => {
     // Debug filtering process
     console.log('Filtering pokemons, current selectedType:', selectedType.value);
     console.log('Current pokemons count:', pokemons.value ? pokemons.value.length : 0);
-    
+
     if (!selectedType.value) {
       console.log('No type filter, returning all', pokemons.value ? pokemons.value.length : 0, 'pokemons');
       return pokemons.value || [];
@@ -29,7 +29,7 @@ export const usePokemonStore = defineStore('pokemon', () => {
       if (!pokemon || !pokemon.types) return false;
       return pokemon.types.some(type => type.type?.name === selectedType.value);
     }) : [];
-    
+
     console.log('Filtered pokemons by type', selectedType.value, ':', filtered.length, 'pokemons');
     return filtered;
   })
@@ -37,33 +37,33 @@ export const usePokemonStore = defineStore('pokemon', () => {
   const isFavorite = (id) => {
     return favorites.value.some(fav => fav.id === id)
   }
-  
+
   // Initialization - load favorites from localStorage on startup
   const init = () => {
     try {
       console.log('🚀 Initializing Pokemon store...')
-      console.log('Store state:', { 
+      console.log('Store state:', {
         pokemonsLength: pokemons.value?.length || 0,
         typesLength: pokemonTypes.value?.length || 0,
         isLoading: isLoading.value,
         hasError: !!error.value
       })
-      
+
       // Load favorites first
       loadFavorites()
-      
+
       // Reset state to ensure clean start
       isLoading.value = true
       selectedType.value = ''
       error.value = null
-      
+
       // Selalu muat data pokemon saat init - force reactive update
       pokemons.value = []
       nextUrl.value = ''
-      
+
       // Immediately load data
       console.log('🔄 Loading initial Pokemon data')
-      
+
       // Dispatch fetches - don't await to avoid blocking
       setTimeout(() => {
         console.log('📦 Dispatching fetchPokemons...')
@@ -78,17 +78,17 @@ export const usePokemonStore = defineStore('pokemon', () => {
             }
           })
       }, 0)
-      
+
       setTimeout(() => {
         console.log('📦 Dispatching fetchPokemonTypes...')
         fetchPokemonTypes()
           .then(() => console.log('✅ Initial types loaded:', pokemonTypes.value.length))
           .catch(e => console.error('❌ Failed initial types load:', e))
       }, 0)
-      
+
       // Signal that initialization has completed
       console.log('🏁 Store initialization dispatched')
-      
+
       // Also setup a safety timer to verify data was loaded
       setTimeout(() => {
         console.log('⏱️ Safety timer checking data...')
@@ -99,7 +99,7 @@ export const usePokemonStore = defineStore('pokemon', () => {
           console.log('✅ Safety timer: Data already loaded:', pokemons.value.length, 'Pokemon')
         }
       }, 5000)
-      
+
       return true
     } catch (error) {
       console.error('💥 Error during store initialization:', error)
@@ -115,7 +115,7 @@ export const usePokemonStore = defineStore('pokemon', () => {
     console.log('🔶 Loading fallback data...')
     // Pastikan kita berhenti loading
     isLoading.value = false
-    
+
     // Definisi data darurat yang pasti bekerja
     const fallbackPokemons = [
       {
@@ -203,18 +203,18 @@ export const usePokemonStore = defineStore('pokemon', () => {
         isNull: pokemons.value === null,
         isUndefined: pokemons.value === undefined,
       })
-      
+
       // 1. Pastikan pokemons.value adalah array - ini paling penting
       if (!Array.isArray(pokemons.value)) {
         console.log('⚠️ pokemons.value bukan array, membuat array baru')
         pokemons.value = []
       }
-      
+
       // 2. Reset array (paling aman)
       pokemons.value.length = 0
-      
+
       // 3. Coba beberapa pendekatan untuk memperbarui data
-      
+
       // Approach 1: Push individual items
       try {
         console.log('Mencoba pendekatan 1: Push item satu per satu')
@@ -224,15 +224,15 @@ export const usePokemonStore = defineStore('pokemon', () => {
         console.log('✓ Pendekatan 1 berhasil, pokemons.length:', pokemons.value.length)
       } catch (err1) {
         console.error('✗ Pendekatan 1 gagal:', err1)
-        
-        // Approach 2: Direct assignment with spread 
+
+        // Approach 2: Direct assignment with spread
         try {
           console.log('Mencoba pendekatan 2: Penugasan langsung dengan spread')
           pokemons.value = [...fallbackPokemons]
           console.log('✓ Pendekatan 2 berhasil, pokemons.length:', pokemons.value.length)
         } catch (err2) {
           console.error('✗ Pendekatan 2 gagal:', err2)
-          
+
           // Approach 3: Direct assignment without spread
           try {
             console.log('Mencoba pendekatan 3: Penugasan langsung tanpa spread')
@@ -240,7 +240,7 @@ export const usePokemonStore = defineStore('pokemon', () => {
             console.log('✓ Pendekatan 3 berhasil, pokemons.length:', pokemons.value.length)
           } catch (err3) {
             console.error('✗ Pendekatan 3 gagal:', err3)
-            
+
             // Approach 4: $patch (Pinia method)
             try {
               console.log('Mencoba pendekatan 4: $patch Pinia')
@@ -248,7 +248,7 @@ export const usePokemonStore = defineStore('pokemon', () => {
               console.log('✓ Pendekatan 4 berhasil, pokemons.length:', pokemons.value.length)
             } catch (err4) {
               console.error('✗ Pendekatan 4 gagal:', err4)
-              
+
               // Final approach: Global direct assignment
               try {
                 console.log('Mencoba pendekatan darurat: Global assignment')
@@ -264,10 +264,10 @@ export const usePokemonStore = defineStore('pokemon', () => {
           }
         }
       }
-      
+
       // Jika sampai disini, setidaknya salah satu pendekatan berhasil
       console.log('🟢 Fallback data berhasil dimuat')
-      
+
       // Juga muat tipe darurat
       if (!pokemonTypes.value || !Array.isArray(pokemonTypes.value) || pokemonTypes.value.length === 0) {
         console.log('Loading fallback types...')
@@ -278,7 +278,7 @@ export const usePokemonStore = defineStore('pokemon', () => {
           { "name": "grass", "url": "https://pokeapi.co/api/v2/type/12/" },
           { "name": "electric", "url": "https://pokeapi.co/api/v2/type/13/" }
         ]
-        
+
         try {
           pokemonTypes.value = fallbackTypes
         } catch (typeErr) {
@@ -287,24 +287,24 @@ export const usePokemonStore = defineStore('pokemon', () => {
           this.$patch({ pokemonTypes: fallbackTypes })
         }
       }
-      
+
       // Pastikan pokemons dan types sudah diatur
       const success = pokemons.value && Array.isArray(pokemons.value) && pokemons.value.length > 0
-      
+
       // Make sure isLoading is set to false
       isLoading.value = false
-      
+
       // Umumkan ke DOM bahwa data telah dimuat (untuk debugging)
       if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('pokemon-fallback-loaded', { 
-          detail: { success, count: pokemons.value?.length || 0 } 
+        window.dispatchEvent(new CustomEvent('pokemon-fallback-loaded', {
+          detail: { success, count: pokemons.value?.length || 0 }
         }))
       }
-      
+
       return success ? pokemons.value : []
     } catch (err) {
       console.error('💥 Error kritis saat memuat data fallback:', err)
-      
+
       // Ultimate fallback - definisi dan assignment sederhana
       try {
         console.log('⚡ Mencoba penugasan Pikachu darurat...')
@@ -322,28 +322,28 @@ export const usePokemonStore = defineStore('pokemon', () => {
           },
           isLike: false
         }
-        
+
         // Buat array baru dan setel dengan tegas
         pokemons.value = [emergencyPikachu]
-        
+
         // Pastikan masih meload
         isLoading.value = false
-        
+
         // Notifikasi global untuk debugging
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('pokemon-emergency-loaded'))
         }
-        
+
         return pokemons.value
       } catch (ultimateError) {
         console.error('💥💥 KRITIS: Bahkan Pikachu darurat gagal:', ultimateError)
-        
+
         // Notifikasi kegagalan global untuk debugging
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('pokemon-loading-failed'))
         }
-        
-        // Kembalikan array kosong daripada gagal 
+
+        // Kembalikan array kosong daripada gagal
         return []
       }
     }
@@ -356,7 +356,7 @@ export const usePokemonStore = defineStore('pokemon', () => {
 
     try {
       // Determine the URL to fetch from
-      const url = nextUrl.value || `${API_URL}pokemon?limit=20&offset=0`
+      const url = nextUrl.value || `${API_URL}pokemon?limit=100&offset=0`
       console.log('Fetching from URL:', url)
 
       // Fetch the data from the API
@@ -373,31 +373,83 @@ export const usePokemonStore = defineStore('pokemon', () => {
       }
 
       const pokemonData = await response.json()
-      
+
       // Validate the data structure
       if (!pokemonData || !pokemonData.results || !Array.isArray(pokemonData.results)) {
         throw new Error('Invalid Pokemon data structure received from API')
       }
-      
+
       console.log('Fetched data:', pokemonData)
 
       // Update the next URL for pagination
-      nextUrl.value = pokemonData.next
+      console.log('Previous nextUrl:', nextUrl.value)
+
+      // Check if the next URL is valid and points to the next set of Pokemon
+      if (pokemonData.next) {
+        // Extract offset from the next URL
+        const nextUrlObj = new URL(pokemonData.next);
+        const nextOffset = parseInt(nextUrlObj.searchParams.get('offset') || '0');
+        const nextLimit = parseInt(nextUrlObj.searchParams.get('limit') || '100');
+
+        console.log(`Next URL offset: ${nextOffset}, limit: ${nextLimit}`);
+
+        // Verify that the next offset is greater than the current offset
+        const currentUrl = url;
+        let currentOffset = 0;
+
+        try {
+          const currentUrlObj = new URL(currentUrl);
+          currentOffset = parseInt(currentUrlObj.searchParams.get('offset') || '0');
+          console.log(`Current URL offset: ${currentOffset}`);
+
+          if (nextOffset <= currentOffset) {
+            console.error('Invalid next URL: offset is not increasing');
+            // Force a valid next URL
+            const forcedNextUrl = new URL(currentUrl);
+            forcedNextUrl.searchParams.set('offset', (currentOffset + nextLimit).toString());
+            nextUrl.value = forcedNextUrl.toString();
+            console.log('Forced next URL:', nextUrl.value);
+          } else {
+            nextUrl.value = pokemonData.next;
+            console.log('Valid next URL:', nextUrl.value);
+          }
+        } catch (error) {
+          console.error('Error parsing URL:', error);
+          nextUrl.value = pokemonData.next;
+          console.log('Using API-provided next URL:', nextUrl.value);
+        }
+      } else {
+        nextUrl.value = null;
+        console.log('No more Pokemon to load (next URL is null)');
+      }
 
       // Process each Pokemon
       const newPokemons = []
       const fetchPromises = []
 
+      // Create a set of existing Pokemon IDs for quick lookup
+      const existingPokemonIds = new Set(pokemons.value.map(p => p.id))
+      console.log('Existing Pokemon IDs count:', existingPokemonIds.size)
+
       // First, create all the Pokemon with basic data
       for (const pokemon of pokemonData.results) {
         if (!pokemon || !pokemon.url) continue; // Skip invalid entries
-        
+
         const id = pokemon.url
           .split('/')
           .filter(part => !!part)
           .pop()
-        
+
         if (!id) continue; // Skip if we couldn't extract an ID
+
+        // Check if this Pokemon ID already exists in our collection
+        if (existingPokemonIds.has(id)) {
+          console.log(`Skipping duplicate Pokemon with ID: ${id}, URL: ${pokemon.url}`);
+          continue; // Skip this Pokemon as it's already in our collection
+        }
+
+        // Log the Pokemon ID for debugging
+        console.log(`Processing new Pokemon with ID: ${id}, URL: ${pokemon.url}`)
 
         // Create a basic Pokemon object with fallback data
         let types = []
@@ -510,18 +562,58 @@ export const usePokemonStore = defineStore('pokemon', () => {
         fetchPromises.push(fetchDetailPromise)
       }
 
-      // Add all the Pokemon to the list immediately  
+      // Add all the Pokemon to the list immediately
       if (newPokemons.length > 0) {
         console.log('New Pokémon with basic data:', newPokemons.length)
-        // Force reactive update with new array assignment
-        if (nextUrl.value && nextUrl.value.includes('offset=')) {
-          // Append if this is pagination (not first page)
-          pokemons.value = [...pokemons.value, ...newPokemons]
-        } else {
-          // Replace if this is the first page
-          pokemons.value = [...newPokemons]
+
+        // Log existing Pokemon IDs for debugging
+        if (pokemons.value.length > 0) {
+          console.log('Existing Pokemon IDs:', pokemons.value.map(p => p.id).join(', '))
+          console.log('First existing Pokemon ID:', pokemons.value[0].id)
+          console.log('Last existing Pokemon ID:', pokemons.value[pokemons.value.length - 1].id)
         }
-        
+
+        // Log new Pokemon IDs for debugging
+        console.log('New Pokemon IDs:', newPokemons.map(p => p.id).join(', '))
+        console.log('First new Pokemon ID:', newPokemons[0].id)
+        console.log('Last new Pokemon ID:', newPokemons[newPokemons.length - 1].id)
+
+        // Check for duplicate Pokemon IDs
+        const existingIds = pokemons.value.length > 0 ? new Set(pokemons.value.map(p => p.id)) : new Set();
+        const duplicates = newPokemons.filter(p => existingIds.has(p.id));
+
+        if (duplicates.length > 0) {
+          console.warn('Found duplicate Pokemon IDs:', duplicates.map(p => p.id).join(', '));
+          // Filter out duplicates
+          const uniqueNewPokemons = newPokemons.filter(p => !existingIds.has(p.id));
+          console.log('Filtered out duplicates, remaining new Pokemon:', uniqueNewPokemons.length);
+
+          // Force reactive update with new array assignment
+          if (pokemons.value.length > 0 && uniqueNewPokemons.length > 0) {
+            // Always append if we already have Pokemon in the array
+            console.log('Appending unique new Pokemon to existing array');
+            pokemons.value = [...pokemons.value, ...uniqueNewPokemons];
+          } else if (pokemons.value.length === 0) {
+            // Only replace if the array is empty (first load)
+            console.log('Setting initial Pokemon array');
+            pokemons.value = [...newPokemons];
+          } else {
+            console.log('No unique new Pokemon to add');
+          }
+        } else {
+          // No duplicates found, proceed normally
+          // Force reactive update with new array assignment
+          if (pokemons.value.length > 0) {
+            // Always append if we already have Pokemon in the array
+            console.log('Appending new Pokemon to existing array');
+            pokemons.value = [...pokemons.value, ...newPokemons];
+          } else {
+            // Only replace if the array is empty (first load)
+            console.log('Setting initial Pokemon array');
+            pokemons.value = [...newPokemons];
+          }
+        }
+
         // Explicitly log the state to check reactivity
         console.log('Updated pokemons array:', pokemons.value.length, 'items')
         console.log('First few pokemon:', pokemons.value.slice(0, 3))
@@ -555,7 +647,7 @@ export const usePokemonStore = defineStore('pokemon', () => {
   async function fetchPokemonTypes() {
     try {
       console.log('Fetching Pokémon types from API...')
-      
+
       if (pokemonTypes.value && pokemonTypes.value.length > 0) {
         console.log('Types already loaded:', pokemonTypes.value.length)
         return pokemonTypes.value
@@ -563,28 +655,28 @@ export const usePokemonStore = defineStore('pokemon', () => {
 
       // Coba ambil dari API
       const response = await fetch('https://pokeapi.co/api/v2/type')
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch Pokémon types')
       }
-      
+
       const data = await response.json()
       console.log('Fetched', data.results.length, 'Pokémon types:', data)
-      
+
       // Filter tipe utama, tidak termasuk 'shadow' dan 'unknown'
-      const mainTypes = data.results.filter(type => 
+      const mainTypes = data.results.filter(type =>
         !['shadow', 'unknown'].includes(type.name)
       )
-      
+
       console.log('Filtered main types:', mainTypes)
-      
+
       pokemonTypes.value = mainTypes
       console.log('Updated pokemonTypes.value:', pokemonTypes.value)
-      
+
       return mainTypes
     } catch (error) {
       console.error('Error fetching Pokémon types:', error)
-      
+
       // Jika gagal, gunakan fallback tipe
       console.log('Using fallback Pokémon types')
       const fallbackTypes = [
@@ -607,7 +699,7 @@ export const usePokemonStore = defineStore('pokemon', () => {
         { "name": "dark", "url": "https://pokeapi.co/api/v2/type/17/" },
         { "name": "fairy", "url": "https://pokeapi.co/api/v2/type/18/" }
       ]
-      
+
       pokemonTypes.value = fallbackTypes
       return fallbackTypes
     }
@@ -637,27 +729,27 @@ export const usePokemonStore = defineStore('pokemon', () => {
         const data = await response.json();
         console.log(`Found ${data.pokemon?.length || 0} Pokémon of type ${type}`);
 
-        // Process each Pokémon (limit to first 20 for performance)
+        // Process each Pokémon (increased limit for better user experience)
         const typePokemons = [];
         const fetchPromises = [];
-        
+
         // Ensure we have valid data
         if (!data.pokemon || !Array.isArray(data.pokemon)) {
           throw new Error(`Invalid data structure for type ${type}`);
         }
-        
-        const limit = Math.min(data.pokemon.length, 20);
+
+        const limit = Math.min(data.pokemon.length, 100);
 
         for (let i = 0; i < limit; i++) {
           const item = data.pokemon[i];
           if (!item || !item.pokemon || !item.pokemon.url) continue;
-          
+
           const pokemon = item.pokemon;
           const id = pokemon.url
             .split('/')
             .filter(part => !!part)
             .pop();
-            
+
           if (!id) continue;
 
           // Create a basic Pokemon object with fallback data
@@ -750,6 +842,7 @@ export const usePokemonStore = defineStore('pokemon', () => {
         // Only update if we have data
         if (typePokemons.length > 0) {
           // Replace the current Pokémon list with the filtered ones
+          // We need to replace here because we're filtering, not paginating
           pokemons.value = typePokemons;
           console.log(`Updated pokemons array with ${typePokemons.length} type-filtered Pokémon`);
         } else {
@@ -767,9 +860,8 @@ export const usePokemonStore = defineStore('pokemon', () => {
           pokemons.value = [...pokemons.value];
         });
       } else {
-        // If no type is selected, reset and fetch all Pokémon
-        pokemons.value = [];
-        await fetchPokemons();
+        // If no type is selected, reset filters but keep existing Pokemon data
+        resetFilters();
       }
 
       console.log(`Set selected type to: ${selectedType.value}`);
@@ -796,7 +888,7 @@ export const usePokemonStore = defineStore('pokemon', () => {
       if (!query || typeof query !== 'string') {
         throw new Error('Invalid search query');
       }
-      
+
       // First check if we already have this Pokémon in our list
       const searchLower = query.toLowerCase();
       let foundPokemon = pokemons.value.find(p =>
@@ -819,7 +911,7 @@ export const usePokemonStore = defineStore('pokemon', () => {
           }
 
           const data = await response.json();
-          
+
           if (!data || !data.id) {
             throw new Error('Invalid pokemon data returned from API');
           }
@@ -888,10 +980,10 @@ export const usePokemonStore = defineStore('pokemon', () => {
 
   function toggleFavorite(pokemon) {
     console.log('Toggle favorite for:', pokemon.name, 'ID:', pokemon.id)
-    
+
     // Cari di favorites berdasarkan ID
     const index = favorites.value.findIndex(fav => fav.id === pokemon.id)
-    
+
     // Update status isLike di objek pokemon yang dikirim
     pokemon.isLike = index === -1
 
@@ -919,9 +1011,9 @@ export const usePokemonStore = defineStore('pokemon', () => {
 
     // Save to localStorage
     localStorage.setItem('pokemonFavorites', JSON.stringify(favorites.value))
-    
+
     console.log('Favorites after toggle:', favorites.value.length)
-    
+
     // Return the new status untuk convenience
     return index === -1
   }
@@ -954,11 +1046,15 @@ export const usePokemonStore = defineStore('pokemon', () => {
       console.log('Resetting filters...')
       // Reset filter
       selectedType.value = ''
-      // Reset data pokemon
-      pokemons.value = []
-      nextUrl.value = ''
-      // Muat ulang data
-      fetchPokemons()
+
+      // Check if we already have Pokemon data
+      if (pokemons.value.length === 0) {
+        // Only reset data if we don't have any Pokemon
+        nextUrl.value = ''
+        // Muat ulang data
+        fetchPokemons()
+      }
+
       console.log('Filters reset completed')
     } catch (error) {
       console.error('Error resetting filters:', error)
