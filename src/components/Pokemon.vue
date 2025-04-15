@@ -541,26 +541,12 @@
               </button>
             </div>
           </div>
-
-          <!-- Loading state or empty message -->
-          <p
-            v-if="pokemonStore.isLoading"
-            class="col-span-full text-center text-white"
-          >
-            Loading...
-          </p>
-          <p
-            v-else-if="directPokemonList.length === 0"
-            class="col-span-full text-center text-white"
-          >
-            No Pokemon available
-          </p>
         </section>
 
         <!-- Loading Skeletons for Infinite Scroll -->
         <div
           v-if="activeMenu === 'listPokemon' && pokemonStore.isLoading"
-          class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mt-6"
+          class="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 max-w-7xl mx-auto mt-6"
         >
           <PokemonSkeleton v-for="n in 5" :key="`infinite-skeleton-${n}`" />
         </div>
@@ -571,19 +557,9 @@
           class="py-4 mt-2"
           v-if="activeMenu === 'listPokemon' && pokemonStore.nextUrl"
         >
-          <div
-            v-if="pokemonStore.isLoading"
-            class="flex justify-center items-center py-2"
-          >
-            <div
-              class="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full flex items-center space-x-2 shadow-md"
-            >
-              <span class="text-white text-sm">Memuat Pokémon</span>
-              <LoadingDots />
-            </div>
-          </div>
-          <div v-else class="text-center">
+          <div class="text-center">
             <span
+              v-if="!pokemonStore.isLoading"
               class="text-white/60 text-xs bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full"
             >
               Scroll untuk melihat lebih banyak Pokémon
