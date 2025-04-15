@@ -43,4 +43,4 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
           script: |
-            sudo systemctl restart nginx
+            systemctl restart nginx || sudo systemctl restart nginx
