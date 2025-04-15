@@ -66,7 +66,20 @@ jobs:
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S chown -R www-data:www-data ${{ secrets.DEPLOY_PATH }}
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S chmod -R 755 ${{ secrets.DEPLOY_PATH }}
             
+            # Periksa konfigurasi Nginx
+            echo "Checking Nginx configuration..."
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S nginx -t
+            
+            # Periksa error log Nginx
+            echo "Checking Nginx error log..."
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S tail -n 50 /var/log/nginx/error.log
+            
+            # Periksa struktur file
+            echo "Checking file structure..."
+            ls -la ${{ secrets.DEPLOY_PATH }}
+            
             # Restart Nginx
+            echo "Restarting Nginx..."
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S systemctl restart nginx
             
             # Verifikasi status
