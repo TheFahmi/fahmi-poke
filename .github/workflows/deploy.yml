@@ -34,16 +34,10 @@ jobs:
       
       - name: Deploy with rsync
         run: |
-          # Setel izin sementara untuk direktori target
-          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "echo '${{ secrets.SUDO_PASSWORD }}' | sudo -S chown -R ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} ${{ secrets.DEPLOY_PATH }}"
-          
           # Lakukan rsync dengan opsi tambahan
           rsync -avz --no-perms --no-owner --no-group --delete ./dist/ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_PATH }}
-          
-          # Setel izin yang benar setelah rsync
-          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "echo '${{ secrets.SUDO_PASSWORD }}' | sudo -S chown -R www-data:www-data ${{ secrets.DEPLOY_PATH }} && sudo chmod -R 755 ${{ secrets.DEPLOY_PATH }}"
       
-      - name: Restart Nginx
+      - name: Set Permissions and Restart Nginx
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DEPLOY_HOST }}
@@ -53,17 +47,11 @@ jobs:
           command_timeout: "1m"
           script_stop: true
           script: |
-            # Tampilkan informasi server
-            echo "Server Host: ${{ secrets.DEPLOY_HOST }}"
-            echo "Deployment Path: ${{ secrets.DEPLOY_PATH }}"
+            # Setel izin dengan sudo
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S bash -c 'chown -R www-data:www-data ${{ secrets.DEPLOY_PATH }} && chmod -R 755 ${{ secrets.DEPLOY_PATH }}'
             
-            # Periksa konfigurasi Nginx
-            echo "Nginx Configuration:"
-            sudo cat /etc/nginx/sites-enabled/*
+            # Restart Nginx
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S bash -c 'systemctl restart nginx'
             
-            # Restart Nginx dengan sudo password
-            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S systemctl restart nginx
-            
-            # Verifikasi status setelah restart
-            echo "Verifying Nginx status..."
+            # Verifikasi status
             systemctl status nginx
