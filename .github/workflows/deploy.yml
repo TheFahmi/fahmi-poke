@@ -44,11 +44,17 @@ jobs:
           key: ${{ secrets.DEPLOY_KEY }}
           use_insecure_cipher: true
           command_timeout: "1m"
+          script_stop: true
           script: |
-            if command -v sudo >/dev/null 2>&1; then
-              echo "Using sudo"
-              echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S systemctl restart nginx
+            # Coba restart nginx tanpa sudo terlebih dahulu
+            if systemctl restart nginx; then
+              echo "Nginx restarted successfully without sudo"
             else
-              echo "No sudo available, trying direct restart"
-              systemctl restart nginx
+              echo "Trying with sudo..."
+              # Coba dengan sudo -n (non-interactive)
+              sudo -n systemctl restart nginx || {
+                echo "Failed to restart nginx"
+                exit 1
+              }
+              echo "Nginx restarted successfully with sudo"
             fi
