@@ -66,10 +66,15 @@ jobs:
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S chown -R www-data:www-data ${{ secrets.DEPLOY_PATH }}
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S chmod -R 755 ${{ secrets.DEPLOY_PATH }}
             
-            # Buat konfigurasi Nginx
+            # Hapus semua konfigurasi yang ada
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S rm -f /etc/nginx/sites-enabled/*
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S rm -f /etc/nginx/sites-available/*
+            
+            # Buat konfigurasi Nginx baru
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S bash -c 'cat > /etc/nginx/sites-available/default << EOL
             server {
-                listen 80;
+                listen 80 default_server;
+                listen [::]:80 default_server;
                 server_name _;
                 root ${{ secrets.DEPLOY_PATH }};
                 index index.html;
@@ -95,9 +100,6 @@ jobs:
                 }
             }
             EOL'
-            
-            # Hapus konfigurasi default yang mungkin mengganggu
-            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S rm -f /etc/nginx/sites-enabled/default
             
             # Aktifkan konfigurasi baru
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
