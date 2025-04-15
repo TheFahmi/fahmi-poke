@@ -21,13 +21,6 @@ jobs:
       
       - name: Build
         run: npm run build
-
-      - name: Check Secrets
-        run: |
-          echo "DEPLOY_KEY: ${!{ secrets.DEPLOY_KEY }}" # Avoid printing sensitive data in real runs
-          echo "DEPLOY_HOST: ${!{ secrets.DEPLOY_HOST }}"
-          echo "DEPLOY_USER: ${!{ secrets.DEPLOY_USER }}"
-          echo "DEPLOY_PATH: ${!{ secrets.DEPLOY_PATH }}"
       
       - name: Install SSH Key
         uses: shimataro/ssh-key-action@v2
