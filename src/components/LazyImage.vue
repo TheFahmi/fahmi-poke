@@ -16,9 +16,7 @@
       <div class="shimmer"></div>
     </div>
 
-    <!-- Debug indicator for visibility state -->
-    <div v-if="isVisible && !hasLoaded" class="absolute top-0 right-0 bg-yellow-500 text-xs text-white px-1 py-0.5 rounded-bl z-10">Loading</div>
-    <div v-if="hasLoaded" class="absolute top-0 right-0 bg-green-500 text-xs text-white px-1 py-0.5 rounded-bl z-10">Loaded</div>
+    <!-- No debug indicators -->
 
     <!-- Actual image with IntersectionObserver for lazy loading -->
     <img
@@ -221,12 +219,5 @@ onUnmounted(() => {
   pointer-events: none;
 }
 
-/* Visual indicators for lazy loading states */
-.lazy-visible {
-  border: 2px solid rgba(255, 193, 7, 0.5); /* Yellow border for visible but not loaded */
-}
-
-.lazy-loaded {
-  border: 2px solid rgba(40, 167, 69, 0.5); /* Green border for loaded */
-}
+/* No visual indicators */
 </style>
