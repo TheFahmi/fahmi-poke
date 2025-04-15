@@ -66,6 +66,33 @@ jobs:
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S chown -R www-data:www-data ${{ secrets.DEPLOY_PATH }}
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S chmod -R 755 ${{ secrets.DEPLOY_PATH }}
             
+            # Install PM2 jika belum ada
+            if ! command -v pm2 &> /dev/null; then
+                echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S npm install -g pm2
+            fi
+            
+            # Buat service file untuk Node.js
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S bash -c 'cat > /etc/systemd/system/node-app.service << EOL
+            [Unit]
+            Description=Node.js Application
+            After=network.target
+
+            [Service]
+            ExecStart=/usr/bin/pm2 start ${{ secrets.DEPLOY_PATH }}/server.js --name "poke-fahmi"
+            Restart=always
+            User=www-data
+            Group=www-data
+            Environment=NODE_ENV=production
+
+            [Install]
+            WantedBy=multi-user.target
+            EOL'
+            
+            # Reload systemd dan start service
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S systemctl daemon-reload
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S systemctl enable node-app
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S systemctl restart node-app
+            
             # Hapus semua konfigurasi yang ada
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S rm -f /etc/nginx/sites-enabled/*
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S rm -f /etc/nginx/sites-available/*
@@ -79,22 +106,35 @@ jobs:
                 root ${{ secrets.DEPLOY_PATH }};
                 index index.html;
 
-                # Handle SPA routing
+                # Handle SSR
                 location / {
-                    try_files \$uri \$uri/ /index.html;
+                    proxy_pass http://localhost:3000;
+                    proxy_http_version 1.1;
+                    proxy_set_header Upgrade \$http_upgrade;
+                    proxy_set_header Connection "upgrade";
+                    proxy_set_header Host \$host;
+                    proxy_cache_bypass \$http_upgrade;
+                    proxy_set_header X-Real-IP \$remote_addr;
+                    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto \$scheme;
                 }
 
                 # Handle /poke-fahmi path
                 location /poke-fahmi {
-                    alias ${{ secrets.DEPLOY_PATH }};
-                    try_files \$uri \$uri/ /index.html;
-                    if (!-e \$request_filename) {
-                        rewrite ^(.*)$ /index.html break;
-                    }
+                    proxy_pass http://localhost:3000;
+                    proxy_http_version 1.1;
+                    proxy_set_header Upgrade \$http_upgrade;
+                    proxy_set_header Connection "upgrade";
+                    proxy_set_header Host \$host;
+                    proxy_cache_bypass \$http_upgrade;
+                    proxy_set_header X-Real-IP \$remote_addr;
+                    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto \$scheme;
                 }
 
                 # Handle static files
                 location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+                    root ${{ secrets.DEPLOY_PATH }};
                     expires max;
                     log_not_found off;
                 }
@@ -122,3 +162,4 @@ jobs:
             
             # Verifikasi status
             systemctl status nginx
+            systemctl status node-app
