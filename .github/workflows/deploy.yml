@@ -66,6 +66,28 @@ jobs:
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S chown -R www-data:www-data ${{ secrets.DEPLOY_PATH }}
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S chmod -R 755 ${{ secrets.DEPLOY_PATH }}
             
+            # Buat konfigurasi Nginx
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S bash -c 'cat > /etc/nginx/sites-available/default << EOL
+            server {
+                listen 80;
+                server_name _;
+                root ${{ secrets.DEPLOY_PATH }};
+                index index.html;
+
+                location / {
+                    try_files \$uri \$uri/ /index.html;
+                }
+
+                location /poke-fahmi {
+                    alias ${{ secrets.DEPLOY_PATH }};
+                    try_files \$uri \$uri/ /index.html;
+                }
+            }
+            EOL'
+            
+            # Aktifkan konfigurasi
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+            
             # Periksa konfigurasi Nginx
             echo "Checking Nginx configuration..."
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S nginx -t
