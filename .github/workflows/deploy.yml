@@ -42,5 +42,13 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
+          use_insecure_cipher: true
+          command_timeout: "1m"
           script: |
-            systemctl restart nginx || sudo systemctl restart nginx
+            if command -v sudo >/dev/null 2>&1; then
+              echo "Using sudo"
+              echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S systemctl restart nginx
+            else
+              echo "No sudo available, trying direct restart"
+              systemctl restart nginx
+            fi
