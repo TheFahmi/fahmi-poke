@@ -34,7 +34,14 @@ jobs:
       
       - name: Deploy with rsync
         run: |
-          rsync -avz --delete ./dist/ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_PATH }}
+          # Setel izin sementara untuk direktori target
+          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "echo '${{ secrets.SUDO_PASSWORD }}' | sudo -S chown -R ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} ${{ secrets.DEPLOY_PATH }}"
+          
+          # Lakukan rsync dengan opsi tambahan
+          rsync -avz --no-perms --no-owner --no-group --delete ./dist/ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_PATH }}
+          
+          # Setel izin yang benar setelah rsync
+          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "echo '${{ secrets.SUDO_PASSWORD }}' | sudo -S chown -R www-data:www-data ${{ secrets.DEPLOY_PATH }} && sudo chmod -R 755 ${{ secrets.DEPLOY_PATH }}"
       
       - name: Restart Nginx
         uses: appleboy/ssh-action@master
