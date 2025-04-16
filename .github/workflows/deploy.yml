@@ -66,7 +66,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
           use_insecure_cipher: true
-          command_timeout: "1m"
+          command_timeout: "5m"
           script_stop: true
           script: |
             # Setel izin final untuk web server
@@ -145,7 +145,8 @@ jobs:
             StandardOutput=syslog
             StandardError=syslog
             SyslogIdentifier=node-app
-            
+            TimeoutStartSec=300
+
             [Install]
             WantedBy=multi-user.target
             EOL'
@@ -203,7 +204,7 @@ jobs:
             
             # Periksa apakah server.js dapat dijalankan oleh www-data
             echo "Testing server.js as www-data..."
-            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S -u www-data node server.js || echo "Error running server.js as www-data"
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S -u www-data bash -c 'cd ${{ secrets.DEPLOY_PATH }} && NODE_ENV=production node server.js & sleep 2; kill $!'
             
             # Hapus semua konfigurasi yang ada
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S rm -f /etc/nginx/sites-enabled/*
