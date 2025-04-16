@@ -118,6 +118,9 @@ jobs:
             echo "Checking server.js content..."
             cat server.js
             
+            # Modifikasi server.js untuk menggunakan path yang benar
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S sed -i 's|dist/client/index.html|index.html|g' server.js
+            
             # Jalankan server.js secara manual untuk memeriksa error
             echo "Testing server.js..."
             NODE_ENV=production node server.js &
