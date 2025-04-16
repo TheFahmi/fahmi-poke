@@ -66,7 +66,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
           use_insecure_cipher: true
-          command_timeout: "5m"
+          command_timeout: "1m"
           script_stop: true
           script: |
             # Setel izin final untuk web server
@@ -145,8 +145,7 @@ jobs:
             StandardOutput=syslog
             StandardError=syslog
             SyslogIdentifier=node-app
-            TimeoutStartSec=300
-
+            
             [Install]
             WantedBy=multi-user.target
             EOL'
@@ -161,8 +160,14 @@ jobs:
             # Start service
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S systemctl restart node-app
             
-            # Tunggu sebentar untuk memastikan service berjalan
-            sleep 5
+            # Tunggu dan periksa apakah port 3000 berjalan
+            for i in {1..5}; do
+                if curl -s http://localhost:3000 > /dev/null; then
+                    echo "Server is running on port 3000"
+                    break
+                fi
+                sleep 2
+            done
             
             # Periksa status service
             echo "Checking service status..."
@@ -265,8 +270,7 @@ jobs:
             
             # Restart Nginx
             echo "Restarting Nginx..."
-            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S systemctl restart nginx
-            
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S systemctl restart nginx            
             # Verifikasi status
             systemctl status nginx
             systemctl status node-app
