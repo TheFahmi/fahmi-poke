@@ -30,7 +30,9 @@
         </div>
 
         <!-- Desktop Header Controls (Right) -->
-        <div class="hidden md:flex items-center space-x-4 md:w-1/4 md:justify-end">
+        <div
+          class="hidden md:flex items-center space-x-4 md:w-1/4 md:justify-end"
+        >
           <!-- Type Filter Dropdown (Desktop) -->
           <div class="w-48 relative type-dropdown z-40">
             <div class="relative">
@@ -199,9 +201,20 @@
           <div class="px-4 mb-3 flex items-center space-x-2">
             <!-- Search Bar -->
             <div class="flex-1 relative">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white/70" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+              <div
+                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5 text-white/70"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                    clip-rule="evenodd"
+                  />
                 </svg>
               </div>
               <input
@@ -212,15 +225,24 @@
                 @focus="showMobileSuggestions = true"
                 @blur="hideMobileSuggestionsDelayed"
                 class="w-full py-2 pl-10 pr-3 rounded-full border-0 bg-white/20 backdrop-blur-sm shadow-md focus:ring-2 focus:ring-white/50 focus:outline-none focus:bg-white/30 transition-all duration-200 text-white placeholder-white/70"
-              >
+              />
               <button
                 v-if="mobileSearchValue"
                 type="button"
                 @click="clearMobileSearch"
                 class="absolute inset-y-0 right-0 flex items-center pr-3 text-white/70 hover:text-white transition-colors duration-200"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clip-rule="evenodd"
+                  />
                 </svg>
               </button>
             </div>
@@ -250,7 +272,11 @@
 
           <!-- Mobile Suggestions Dropdown -->
           <div
-            v-if="showMobileSuggestions && filteredMobileSuggestions.length > 0 && mobileSearchValue"
+            v-if="
+              showMobileSuggestions &&
+              filteredMobileSuggestions.length > 0 &&
+              mobileSearchValue
+            "
             class="fixed z-50 mt-1 mx-4 left-0 right-0 top-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg max-h-60 overflow-y-auto border border-gray-200 dark:border-gray-700"
           >
             <ul>
@@ -261,13 +287,20 @@
                 class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center gap-3 transition-colors duration-150 text-gray-800 dark:text-white"
               >
                 <img
-                  :src="suggestion.sprites?.front_default || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${suggestion.id}.png`"
+                  :src="
+                    suggestion.sprites?.front_default ||
+                    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${suggestion.id}.png`
+                  "
                   :alt="suggestion.name"
                   class="w-8 h-8 object-contain"
                 />
                 <div>
-                  <span class="font-medium capitalize">{{ suggestion.name }}</span>
-                  <span class="text-xs text-gray-600 dark:text-gray-400 ml-2">#{{ suggestion.id }}</span>
+                  <span class="font-medium capitalize">{{
+                    suggestion.name
+                  }}</span>
+                  <span class="text-xs text-gray-600 dark:text-gray-400 ml-2"
+                    >#{{ suggestion.id }}</span
+                  >
                 </div>
               </li>
             </ul>
@@ -387,39 +420,94 @@
     </div>
 
     <div class="container mx-auto px-4 pb-12">
-      <!-- Loading Indicator -->
-      <div v-if="pokemonStore.isLoading" class="py-12 flex justify-center">
-        <Loading />
+      <!-- Loading Indicator with Skeleton Cards -->
+      <div v-if="pokemonStore.isLoading" class="py-8">
+        <section class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          <PokemonSkeleton v-for="n in 10" :key="`main-skeleton-${n}`" />
+        </section>
       </div>
 
       <!-- Main content -->
-      <div class="mt-8">
+      <div v-else class="mt-8">
         <!-- Introduction Section -->
         <div v-if="activeMenu === 'listPokemon'" class="mb-8 text-center">
-          <h2 class="text-2xl md:text-3xl font-bold text-white mb-3">
+          <!-- Skeleton loader for title when loading -->
+          <h2 v-if="pokemonStore.isLoading" class="text-2xl md:text-3xl font-bold text-white mb-3 relative overflow-hidden">
+            <span class="invisible">Explore the World of Pokémon</span>
+            <div class="absolute inset-0 bg-white/20 animate-pulse rounded-lg">
+              <div class="shimmer"></div>
+            </div>
+          </h2>
+
+          <!-- Actual title when not loading -->
+          <h2 v-else class="text-2xl md:text-3xl font-bold text-white mb-3">
             Explore the World of Pokémon
           </h2>
-          <p class="text-white/80 max-w-3xl mx-auto mb-6">
+
+          <!-- Skeleton loader for description when loading -->
+          <div v-if="pokemonStore.isLoading" class="text-white/80 max-w-3xl mx-auto mb-6 relative overflow-hidden">
+            <p class="invisible">Discover and learn about all your favorite Pokémon from different
+            generations. Use the search and filter options to find specific
+            Pokémon by name, ID, or type. Explore detailed information about each Pokémon
+            including their types, abilities, and stats.</p>
+            <div class="absolute inset-0 flex flex-col space-y-2">
+              <div class="h-4 bg-white/20 animate-pulse rounded w-full"></div>
+              <div class="h-4 bg-white/20 animate-pulse rounded w-11/12 mx-auto"></div>
+              <div class="h-4 bg-white/20 animate-pulse rounded w-10/12 mx-auto"></div>
+              <div class="h-4 bg-white/20 animate-pulse rounded w-9/12 mx-auto"></div>
+              <div class="shimmer"></div>
+            </div>
+          </div>
+
+          <!-- Actual description when not loading -->
+          <p v-else class="text-white/80 max-w-3xl mx-auto mb-6">
             Discover and learn about all your favorite Pokémon from different
             generations. Use the search and filter options to find specific
-            Pokémon by name, ID, or type.
+            Pokémon by name, ID, or type. Explore detailed information about each Pokémon
+            including their types, abilities, and stats.
           </p>
           <div class="flex flex-wrap justify-center gap-3 mb-6">
+            <!-- Skeleton loader for Pokemon count when loading -->
             <span
-              class="bg-white/20 backdrop-blur-sm px-4 py-1 rounded-full text-sm text-white"
+              v-if="pokemonStore.isLoading"
+              class="bg-white/20 backdrop-blur-sm px-4 py-1 rounded-full text-sm text-white animate-pulse relative overflow-hidden"
+            >
+              <span class="invisible">300 Pokémon Available</span>
+              <div class="absolute inset-0 bg-white/20 animate-pulse rounded-full">
+                <div class="shimmer"></div>
+              </div>
+            </span>
+
+            <!-- Actual Pokemon count when not loading -->
+            <span
+              v-else
+              class="bg-white/20 backdrop-blur-sm px-4 py-1 rounded-full text-sm text-white transition-opacity duration-300"
               >{{ directPokemonList.length }} Pokémon Available</span
             >
+
+            <!-- Type filter indicator skeleton when loading -->
             <span
-              v-if="selectedType.value"
-              class="bg-white/20 backdrop-blur-sm px-4 py-1 rounded-full text-sm text-white capitalize"
-              >Type: {{ selectedType.value }}</span
+              v-if="pokemonStore.isLoading && selectedType && (typeof selectedType === 'string' ? selectedType : selectedType.value)"
+              class="bg-white/20 backdrop-blur-sm px-4 py-1 rounded-full text-sm text-white animate-pulse relative overflow-hidden"
+            >
+              <span class="invisible">Type: {{ typeof selectedType === 'string' ? selectedType : selectedType.value }}</span>
+              <div class="absolute inset-0 bg-white/20 animate-pulse rounded-full">
+                <div class="shimmer"></div>
+              </div>
+            </span>
+
+            <!-- Type filter indicator when not loading -->
+            <span
+              v-if="!pokemonStore.isLoading && selectedType && (typeof selectedType === 'string' ? selectedType : selectedType.value)"
+              class="bg-white/20 backdrop-blur-sm px-4 py-1 rounded-full text-sm text-white capitalize transition-opacity duration-300"
+              >Type: {{ typeof selectedType === 'string' ? selectedType : selectedType.value }}</span
             >
           </div>
         </div>
 
         <!-- Pokemon list section -->
         <section
-          v-if="activeMenu === 'listPokemon'"
+          v-if="activeMenu === 'listPokemon' && !pokemonStore.isLoading && directPokemonList.length > 0"
           class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
         >
           <!-- Display Pokemon Card - Redesigned -->
@@ -544,12 +632,12 @@
         </section>
 
         <!-- Loading Skeletons for Infinite Scroll -->
-        <div
+        <section
           v-if="activeMenu === 'listPokemon' && pokemonStore.isLoading"
-          class="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 max-w-7xl mx-auto mt-6"
+          class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mt-6"
         >
           <PokemonSkeleton v-for="n in 5" :key="`infinite-skeleton-${n}`" />
-        </div>
+        </section>
 
         <!-- Infinite Scroll Trigger Element -->
         <div
@@ -592,12 +680,11 @@
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { usePokemonStore } from "@/stores/pokemon";
 import PokemonSearch from "@/components/PokemonSearch.vue";
-import PokemonList from "@/components/PokemonList.vue";
+// PokemonList component removed, using inline grid instead
 import PokemonFavorite from "@/components/PokemonFavorite.vue";
 import PokemonDetail from "@/components/PokemonDetail.vue";
 import PokemonSkeleton from "@/components/PokemonSkeleton.vue";
-import Loading from "@/components/Loading.vue";
-import LoadingDots from "@/components/LoadingDots.vue";
+// Loading components removed, using PokemonSkeleton instead
 import DarkModeToggle from "@/components/DarkModeToggle.vue";
 
 // Initialize store
@@ -605,24 +692,15 @@ const pokemonStore = usePokemonStore();
 
 // Refs ke state store
 const pokemons = computed(() => pokemonStore.pokemons);
-const filteredPokemons = computed(() => pokemonStore.filteredPokemons);
 const pokemonTypes = computed(() => pokemonStore.pokemonTypes);
-const isLoading = computed(() => pokemonStore.isLoading);
 const selectedType = computed(() => pokemonStore.selectedType);
-const nextUrl = computed(() => pokemonStore.nextUrl);
-const error = computed(() => pokemonStore.error);
 
 // Ambil fungsi-fungsi dari store
 const {
   fetchPokemons,
   fetchPokemonTypes,
-  fetchPokemonByType,
   searchPokemon,
-  resetFilters,
   loadFavorites,
-  loadFallbackData,
-  init,
-  toggleFavorite,
 } = pokemonStore;
 
 // Local state
@@ -631,15 +709,13 @@ const selectedPokemon = ref(null);
 const isTypeDropdownOpen = ref(false);
 const showMobileSearch = ref(false);
 const showMobileFilter = ref(false);
-const showMobileMenu = ref(false);
 const infiniteScrollTrigger = ref(null);
 const infiniteScrollTriggerFallback = ref(null);
 const observer = ref(null);
 
 // Mobile search state
-const mobileSearchValue = ref('');
+const mobileSearchValue = ref("");
 const showMobileSuggestions = ref(false);
-const mobileSuggestions = ref([]);
 const mobileBlurTimeout = ref(null);
 
 // Computed for mobile suggestions
@@ -648,7 +724,7 @@ const filteredMobileSuggestions = computed(() => {
 
   const query = mobileSearchValue.value.toLowerCase();
   return pokemonStore.pokemons
-    .filter(pokemon => pokemon.name.toLowerCase().includes(query))
+    .filter((pokemon) => pokemon.name.toLowerCase().includes(query))
     .slice(0, 5); // Limit to 5 suggestions
 });
 
@@ -740,7 +816,7 @@ const loadMorePokemon = async () => {
     setTimeout(() => {
       window.scrollBy({
         top: 100,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     }, 100);
 
@@ -850,11 +926,15 @@ const handleMobileInputChange = async () => {
   showMobileSuggestions.value = true;
 
   // If we have few suggestions and there are more Pokemon to load, load them
-  if (filteredMobileSuggestions.value.length < 3 && pokemonStore.pokemons.length < 150 && pokemonStore.nextUrl) {
+  if (
+    filteredMobileSuggestions.value.length < 3 &&
+    pokemonStore.pokemons.length < 150 &&
+    pokemonStore.nextUrl
+  ) {
     try {
       await pokemonStore.fetchPokemons();
     } catch (error) {
-      console.error('Error loading more Pokemon for suggestions:', error);
+      console.error("Error loading more Pokemon for suggestions:", error);
     }
   }
 };
@@ -866,7 +946,7 @@ const selectMobileSuggestion = (suggestion) => {
 };
 
 const clearMobileSearch = () => {
-  mobileSearchValue.value = '';
+  mobileSearchValue.value = "";
   showMobileSuggestions.value = false;
 };
 
@@ -891,7 +971,11 @@ const setupInfiniteScroll = () => {
       observer.value = new IntersectionObserver(
         (entries) => {
           // If the trigger element is visible and we're not already loading
-          if (entries[0].isIntersecting && !pokemonStore.isLoading && pokemonStore.nextUrl) {
+          if (
+            entries[0].isIntersecting &&
+            !pokemonStore.isLoading &&
+            pokemonStore.nextUrl
+          ) {
             console.log("Trigger observed, loading more Pokemon...");
             // Show skeleton loaders immediately
             pokemonStore.isLoading = true;
@@ -977,21 +1061,30 @@ onMounted(async () => {
         if (pokemonStore.pokemons.length < 200 && pokemonStore.nextUrl) {
           try {
             await pokemonStore.fetchPokemons();
-            console.log('Loaded first batch of additional Pokemon, total:', pokemonStore.pokemons.length);
+            console.log(
+              "Loaded first batch of additional Pokemon, total:",
+              pokemonStore.pokemons.length
+            );
 
             // Load second batch of additional Pokemon after a short delay
             setTimeout(async () => {
               if (pokemonStore.pokemons.length < 300 && pokemonStore.nextUrl) {
                 try {
                   await pokemonStore.fetchPokemons();
-                  console.log('Loaded second batch of additional Pokemon, total:', pokemonStore.pokemons.length);
+                  console.log(
+                    "Loaded second batch of additional Pokemon, total:",
+                    pokemonStore.pokemons.length
+                  );
                 } catch (error) {
-                  console.error('Error loading second batch of Pokemon:', error);
+                  console.error(
+                    "Error loading second batch of Pokemon:",
+                    error
+                  );
                 }
               }
             }, 1000);
           } catch (error) {
-            console.error('Error loading first batch of Pokemon:', error);
+            console.error("Error loading first batch of Pokemon:", error);
           }
         }
       }, 1000);
@@ -1142,6 +1235,42 @@ const handleTypeRetry = () => {
   }
   50% {
     transform: translateY(-10px);
+  }
+}
+
+/* Shimmer effect for skeletons */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.shimmer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 2s infinite;
+  pointer-events: none;
+}
+
+/* Pulse animation for skeletons */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 0.4;
   }
 }
 
