@@ -93,7 +93,21 @@ jobs:
             # Install dependencies di server dengan izin yang benar
             cd ${{ secrets.DEPLOY_PATH }}
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S chown -R ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} .
+            
+            # Install dependencies production
+            echo "Installing production dependencies..."
             npm install --omit=dev
+            
+            # Install dependencies yang diperlukan untuk SSR
+            echo "Installing SSR dependencies..."
+            npm install express compression serve-static
+            
+            # Verifikasi dependencies
+            echo "Verifying dependencies..."
+            ls -la node_modules/express
+            ls -la node_modules/compression
+            ls -la node_modules/serve-static
+            
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S chown -R www-data:www-data .
             
             # Periksa keberadaan dan izin server.js
