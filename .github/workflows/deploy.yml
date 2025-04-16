@@ -78,9 +78,14 @@ jobs:
                 echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S npm install -g pm2
             fi
             
-            # Install dependencies di server
+            # Install dependencies di server dengan izin yang benar
             cd ${{ secrets.DEPLOY_PATH }}
-            npm install --production
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S chown -R ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} .
+            npm install --omit=dev
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S chown -R www-data:www-data .
+            
+            # Hentikan PM2 jika ada proses yang berjalan
+            pm2 delete all || true
             
             # Buat service file untuk Node.js
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S bash -c 'cat > /etc/systemd/system/node-app.service << EOL
@@ -90,7 +95,7 @@ jobs:
 
             [Service]
             WorkingDirectory=${{ secrets.DEPLOY_PATH }}
-            ExecStart=/usr/bin/pm2 start server.js --name "poke-fahmi"
+            ExecStart=/usr/bin/pm2 start server.js --name "poke-fahmi" --no-daemon
             Restart=always
             User=www-data
             Group=www-data
@@ -106,8 +111,14 @@ jobs:
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S systemctl enable node-app
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S systemctl restart node-app
             
+            # Tunggu sebentar untuk memastikan service berjalan
+            sleep 5
+            
             # Periksa status PM2
             pm2 list
+            
+            # Periksa log PM2
+            pm2 logs poke-fahmi --lines 20
             
             # Hapus semua konfigurasi yang ada
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S rm -f /etc/nginx/sites-enabled/*
