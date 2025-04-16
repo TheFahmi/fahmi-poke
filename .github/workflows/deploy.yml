@@ -73,10 +73,22 @@ jobs:
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S chown -R www-data:www-data ${{ secrets.DEPLOY_PATH }}
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S chmod -R 755 ${{ secrets.DEPLOY_PATH }}
             
-            # Install PM2 jika belum ada
-            if ! command -v pm2 &> /dev/null; then
-                echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S npm install -g pm2
+            # Periksa keberadaan .env
+            echo "Checking .env files..."
+            ls -la ${{ secrets.DEPLOY_PATH }}/.env* || echo "No .env files found"
+            
+            # Buat .env jika tidak ada
+            if [ ! -f "${{ secrets.DEPLOY_PATH }}/.env" ]; then
+                echo "Creating .env file..."
+                echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S bash -c 'cat > ${{ secrets.DEPLOY_PATH }}/.env << EOL
+                NODE_ENV=production
+                PORT=3000
+                EOL'
             fi
+            
+            # Setel izin .env
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S chown www-data:www-data ${{ secrets.DEPLOY_PATH }}/.env
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S chmod 600 ${{ secrets.DEPLOY_PATH }}/.env
             
             # Install dependencies di server dengan izin yang benar
             cd ${{ secrets.DEPLOY_PATH }}
@@ -111,6 +123,8 @@ jobs:
             User=www-data
             Group=www-data
             Environment=NODE_ENV=production
+            Environment=PORT=3000
+            EnvironmentFile=${{ secrets.DEPLOY_PATH }}/.env
             Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/local/node/bin
             StandardOutput=syslog
             StandardError=syslog
@@ -152,6 +166,10 @@ jobs:
             # Periksa apakah www-data dapat mengakses direktori
             echo "Checking www-data access..."
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S -u www-data ls -la ${{ secrets.DEPLOY_PATH }}
+            
+            # Periksa environment yang digunakan oleh service
+            echo "Checking service environment..."
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S systemctl show node-app --property=Environment --no-pager
             
             # Hapus semua konfigurasi yang ada
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S rm -f /etc/nginx/sites-enabled/*
