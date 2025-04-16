@@ -171,6 +171,18 @@ jobs:
             echo "Checking service environment..."
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S systemctl show node-app --property=Environment --no-pager
             
+            # Periksa log systemd
+            echo "Checking systemd logs..."
+            journalctl -u node-app -n 50 --no-pager
+            
+            # Periksa log syslog
+            echo "Checking syslog..."
+            tail -n 50 /var/log/syslog | grep node-app || echo "No syslog entries found"
+            
+            # Periksa apakah server.js dapat dijalankan oleh www-data
+            echo "Testing server.js as www-data..."
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S -u www-data node server.js || echo "Error running server.js as www-data"
+            
             # Hapus semua konfigurasi yang ada
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S rm -f /etc/nginx/sites-enabled/*
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S rm -f /etc/nginx/sites-available/*
