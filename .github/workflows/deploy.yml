@@ -66,7 +66,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
           use_insecure_cipher: true
-          command_timeout: "1m"
+          command_timeout: "5m"
           script_stop: true
           script: |
             # Setel izin final untuk web server
@@ -120,7 +120,10 @@ jobs:
             
             # Jalankan server.js secara manual untuk memeriksa error
             echo "Testing server.js..."
-            NODE_ENV=production node server.js || echo "Error running server.js"
+            NODE_ENV=production node server.js &
+            SERVER_PID=$!
+            sleep 10
+            kill $SERVER_PID || true
             
             # Buat service file untuk Node.js dengan logging yang lebih detail
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S bash -c 'cat > /etc/systemd/system/node-app.service << EOL
@@ -142,6 +145,7 @@ jobs:
             StandardOutput=syslog
             StandardError=syslog
             SyslogIdentifier=node-app
+            TimeoutStartSec=300
 
             [Install]
             WantedBy=multi-user.target
