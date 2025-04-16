@@ -39,7 +39,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { onMounted } from 'vue'
 import { usePokemonStore } from '@/stores/pokemon'
 import PokemonCard from './PokemonCard.vue'
 import PokemonSkeleton from './PokemonSkeleton.vue'
@@ -53,7 +53,6 @@ const {
   favorites,
   toggleFavorite,
   loadFavorites,
-  IMAGE_URL,
   isLoading
 } = pokemonStore
 
@@ -68,10 +67,10 @@ const viewDetails = (pokemon) => {
 
 const handleToggleFavorite = (pokemon) => {
   console.log('Toggling favorite status for:', pokemon.name)
-  
+
   // Panggil fungsi toggleFavorite di store untuk update status
   toggleFavorite(pokemon)
-  
+
   // Re-load daftar favorit untuk memastikan UI terupdate
   // Gunakan timeout untuk memastikan perubahan state sudah selesai
   setTimeout(() => {
@@ -94,33 +93,17 @@ const goToAllPokemon = () => {
   }
 }
 
-const getPokemonImage = (pokemon) => {
-  // Try to get official artwork first
-  if (pokemon.sprites?.other?.['official-artwork']?.front_default) {
-    return pokemon.sprites.other['official-artwork'].front_default
-  }
-
-  // Fall back to regular sprite
-  if (pokemon.sprites?.front_default) {
-    return pokemon.sprites.front_default
-  }
-
-  // Last resort, use the ID to construct URL
-  return `${IMAGE_URL}${pokemon.id}.png`
-}
+// This function is now handled by the PokemonCard component
 
 // Load favorites on mount
 onMounted(() => {
-  // Set loading state
-  pokemonStore.isLoading = true
-
-  // Load favorites
-  loadFavorites()
-
-  // Simulate loading delay for better UX
-  setTimeout(() => {
-    pokemonStore.isLoading = false
-  }, 1000)
+  try {
+    // Load favorites - loading state is managed in the store
+    loadFavorites()
+    console.log('Favorites loading initiated')
+  } catch (error) {
+    console.error('Error in PokemonFavorite onMounted:', error)
+  }
 })
 </script>
 

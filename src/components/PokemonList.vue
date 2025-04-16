@@ -1,5 +1,14 @@
 <template>
-  <div v-if="localPokemons && localPokemons.length > 0">
+  <!-- Show skeleton loading when store is loading -->
+  <div v-if="pokemonStore.isLoading" class="mt-8">
+    <!-- Skeleton Loading -->
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 max-w-7xl mx-auto">
+      <PokemonSkeleton v-for="n in 10" :key="`loading-skeleton-${n}`" />
+    </div>
+  </div>
+
+  <!-- Show Pokemon list when not loading and we have data -->
+  <div v-else-if="localPokemons && localPokemons.length > 0">
     <div class="bg-white/20 backdrop-blur-md p-4 rounded-lg mb-4 text-xs overflow-auto">
       <p>Debug: Menampilkan {{ localPokemons.length }} pokemon</p>
       <pre v-if="localPokemons[0]">First Pokemon: {{ JSON.stringify(localPokemons[0], null, 2).substring(0, 200) + '...' }}</pre>
@@ -19,12 +28,6 @@
     <!-- Loading Skeletons for Next Batch -->
     <div v-if="pokemonStore.isLoading" class="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 max-w-7xl mx-auto mt-6">
       <PokemonSkeleton v-for="n in 5" :key="`next-skeleton-${n}`" />
-    </div>
-  </div>
-  <div v-else-if="isLoading" class="mt-8">
-    <!-- Initial Skeleton Loading -->
-    <div class="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 max-w-7xl mx-auto">
-      <PokemonSkeleton v-for="n in 10" :key="`initial-skeleton-${n}`" />
     </div>
   </div>
   <div v-else class="text-center py-16 bg-white/10 backdrop-blur-md rounded-2xl shadow-lg mt-8">
@@ -73,12 +76,23 @@ const { toggleFavorite, IMAGE_URL, fetchPokemons, fetchPokemonTypes } = pokemonS
 // Watch for changes in props.pokemons
 watch(() => props.pokemons, (newPokemons) => {
   console.log('PokemonList received new data:', newPokemons?.length || 0, 'pokemon')
-  if (newPokemons && Array.isArray(newPokemons)) {
+  // Only update localPokemons if we're not currently loading
+  if (!pokemonStore.isLoading && newPokemons && Array.isArray(newPokemons)) {
     localPokemons.value = [...newPokemons]
     console.log('PokemonList localPokemons updated:', localPokemons.value.length, 'items')
     console.log('First pokemon:', localPokemons.value[0])
   }
 }, { immediate: true, deep: true })
+
+// Also watch for loading state changes
+watch(() => pokemonStore.isLoading, (isLoading) => {
+  console.log('Loading state changed:', isLoading)
+  // When loading finishes, update localPokemons with the latest data
+  if (!isLoading && pokemonStore.pokemons && pokemonStore.pokemons.length > 0) {
+    localPokemons.value = [...pokemonStore.pokemons]
+    console.log('Updated localPokemons after loading finished:', localPokemons.value.length, 'items')
+  }
+})
 
 // Methods
 const getPokemonImage = (pokemon) => {
@@ -127,6 +141,13 @@ const handleToggleFavorite = (pokemon) => {
 // Manually load data if props is empty
 const loadDataDirectly = () => {
   console.log('Loading data directly from store in PokemonList')
+
+  // Don't try to load data if we're already loading
+  if (pokemonStore.isLoading) {
+    console.log('Already loading data, not triggering another load')
+    return
+  }
+
   // First check if we already have data in our local state
   if (localPokemons.value && localPokemons.value.length > 0) {
     console.log('Already have local data, not loading')
@@ -142,56 +163,42 @@ const loadDataDirectly = () => {
     localPokemons.value = [...storeData]
   } else {
     console.log('No data in store or empty array, fetching directly')
-    // Force fetch new data
-    pokemonStore.pokemons = []
+    // Set loading state and fetch new data
+    pokemonStore.isLoading = true
     fetchPokemons()
 
-    // Set a timer to check again after fetching
-    setTimeout(() => {
-      const freshData = pokemonStore.pokemons
-      if (freshData && Array.isArray(freshData) && freshData.length > 0) {
-        console.log('Got fresh data after fetch:', freshData.length, 'items')
-        localPokemons.value = [...freshData]
-      } else {
-        console.warn('Still no data after fetch, using emergency fallback')
-        // Use emergency fallback
-        localPokemons.value = [
-          {
-            id: '1',
-            name: 'bulbasaur (fallback)',
-            types: [{ type: { name: 'grass' } }],
-            sprites: {
-              other: { 'official-artwork': { front_default: `${IMAGE_URL}1.png` } }
-            }
-          },
-          {
-            id: '4',
-            name: 'charmander (fallback)',
-            types: [{ type: { name: 'fire' } }],
-            sprites: {
-              other: { 'official-artwork': { front_default: `${IMAGE_URL}4.png` } }
-            }
-          }
-        ]
-      }
-    }, 2000)
+    // We don't need to manually update localPokemons here
+    // The watcher for pokemonStore.isLoading will handle that
+    // when loading finishes
   }
 }
 
 // Add retryLoading function
 const retryLoading = () => {
+  // Clear local data
   localPokemons.value = []
+
+  // Set loading state
+  pokemonStore.isLoading = true
+
+  // Fetch data
   fetchPokemons()
   fetchPokemonTypes()
 
-  setTimeout(() => {
-    loadDataDirectly()
-  }, 1000)
+  // No need to manually call loadDataDirectly
+  // The watcher for pokemonStore.isLoading will handle updating localPokemons
+  // when loading finishes
 }
 
 onMounted(() => {
   console.log('PokemonList mounted, props:', props)
   console.log('PokemonList mounted, receiving props.pokemons:', props.pokemons?.length || 0)
+
+  // If we're already loading, don't try to set data
+  if (pokemonStore.isLoading) {
+    console.log('Store is already loading, waiting for data...')
+    return
+  }
 
   if (props.pokemons && Array.isArray(props.pokemons) && props.pokemons.length > 0) {
     console.log('Setting localPokemons from props')
@@ -205,9 +212,9 @@ onMounted(() => {
 
   // Always setup watcher even if we loaded directly
   setTimeout(() => {
-    // Check if we still don't have data
-    if (!localPokemons.value || !localPokemons.value.length) {
-      console.warn('No data after 3 seconds, forcing data load')
+    // Check if we still don't have data and we're not loading
+    if (!pokemonStore.isLoading && (!localPokemons.value || !localPokemons.value.length)) {
+      console.warn('No data after 3 seconds and not loading, forcing data load')
       loadDataDirectly()
     }
   }, 3000)

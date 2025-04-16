@@ -1021,6 +1021,8 @@ export const usePokemonStore = defineStore('pokemon', () => {
   function loadFavorites() {
     try {
       console.log('Loading favorites from localStorage')
+      isLoading.value = true
+
       const storedFavorites = localStorage.getItem('pokemonFavorites')
       if (storedFavorites) {
         const parsedFavorites = JSON.parse(storedFavorites)
@@ -1035,9 +1037,16 @@ export const usePokemonStore = defineStore('pokemon', () => {
         console.log('No favorites found in localStorage')
         favorites.value = []
       }
+
+      // Add a small delay for better UX
+      setTimeout(() => {
+        isLoading.value = false
+        console.log('Favorites loading complete, isLoading set to false')
+      }, 500)
     } catch (error) {
       console.error('Error loading favorites:', error)
       favorites.value = []
+      isLoading.value = false
     }
   }
 
