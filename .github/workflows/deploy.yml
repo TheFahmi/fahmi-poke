@@ -89,14 +89,15 @@ jobs:
             ls -la server.js
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S chmod +x server.js
             
-            # Hentikan PM2 jika ada proses yang berjalan
-            pm2 delete all || true
+            # Periksa isi server.js
+            echo "Checking server.js content..."
+            cat server.js
             
             # Jalankan server.js secara manual untuk memeriksa error
             echo "Testing server.js..."
-            node server.js || echo "Error running server.js"
+            NODE_ENV=production node server.js || echo "Error running server.js"
             
-            # Buat service file untuk Node.js
+            # Buat service file untuk Node.js dengan logging yang lebih detail
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S bash -c 'cat > /etc/systemd/system/node-app.service << EOL
             [Unit]
             Description=Node.js Application
@@ -106,10 +107,14 @@ jobs:
             WorkingDirectory=${{ secrets.DEPLOY_PATH }}
             ExecStart=/usr/bin/node server.js
             Restart=always
+            RestartSec=10
             User=www-data
             Group=www-data
             Environment=NODE_ENV=production
             Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/local/node/bin
+            StandardOutput=syslog
+            StandardError=syslog
+            SyslogIdentifier=node-app
 
             [Install]
             WantedBy=multi-user.target
@@ -118,6 +123,11 @@ jobs:
             # Reload systemd dan start service
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S systemctl daemon-reload
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S systemctl enable node-app
+            
+            # Hapus log lama
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S journalctl --vacuum-time=1s
+            
+            # Start service
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S systemctl restart node-app
             
             # Tunggu sebentar untuk memastikan service berjalan
@@ -127,13 +137,21 @@ jobs:
             echo "Checking service status..."
             systemctl status node-app
             
+            # Periksa log service dengan detail
+            echo "Checking service logs..."
+            journalctl -u node-app -n 50 --no-pager
+            
             # Periksa apakah port 3000 sedang digunakan
             echo "Checking port 3000..."
             netstat -tulpn | grep 3000 || echo "Port 3000 not in use"
             
-            # Periksa log service
-            echo "Checking service logs..."
-            journalctl -u node-app -n 50 --no-pager
+            # Periksa izin dan kepemilikan file
+            echo "Checking file permissions..."
+            ls -la ${{ secrets.DEPLOY_PATH }}
+            
+            # Periksa apakah www-data dapat mengakses direktori
+            echo "Checking www-data access..."
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S -u www-data ls -la ${{ secrets.DEPLOY_PATH }}
             
             # Hapus semua konfigurasi yang ada
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S rm -f /etc/nginx/sites-enabled/*
