@@ -84,8 +84,17 @@ jobs:
             npm install --omit=dev
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S chown -R www-data:www-data .
             
+            # Periksa keberadaan dan izin server.js
+            echo "Checking server.js..."
+            ls -la server.js
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S chmod +x server.js
+            
             # Hentikan PM2 jika ada proses yang berjalan
             pm2 delete all || true
+            
+            # Jalankan server.js secara manual untuk memeriksa error
+            echo "Testing server.js..."
+            node server.js || echo "Error running server.js"
             
             # Buat service file untuk Node.js
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S bash -c 'cat > /etc/systemd/system/node-app.service << EOL
@@ -95,7 +104,7 @@ jobs:
 
             [Service]
             WorkingDirectory=${{ secrets.DEPLOY_PATH }}
-            ExecStart=/usr/bin/pm2 start server.js --name "poke-fahmi" --no-daemon
+            ExecStart=/usr/bin/node server.js
             Restart=always
             User=www-data
             Group=www-data
@@ -114,11 +123,17 @@ jobs:
             # Tunggu sebentar untuk memastikan service berjalan
             sleep 5
             
-            # Periksa status PM2
-            pm2 list
+            # Periksa status service
+            echo "Checking service status..."
+            systemctl status node-app
             
-            # Periksa log PM2
-            pm2 logs poke-fahmi --lines 20
+            # Periksa apakah port 3000 sedang digunakan
+            echo "Checking port 3000..."
+            netstat -tulpn | grep 3000 || echo "Port 3000 not in use"
+            
+            # Periksa log service
+            echo "Checking service logs..."
+            journalctl -u node-app -n 50 --no-pager
             
             # Hapus semua konfigurasi yang ada
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S rm -f /etc/nginx/sites-enabled/*
