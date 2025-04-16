@@ -50,6 +50,13 @@ jobs:
       
       - name: Deploy with rsync
         run: |
+          # Salin file server.js
+          cp server.js dist/
+          # Salin package.json untuk production
+          cp package.json dist/
+          # Salin .env jika ada
+          cp .env* dist/ 2>/dev/null || true
+          
           rsync -avz --delete ./dist/ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_PATH }}
       
       - name: Set Final Permissions and Restart Nginx
@@ -71,6 +78,10 @@ jobs:
                 echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S npm install -g pm2
             fi
             
+            # Install dependencies di server
+            cd ${{ secrets.DEPLOY_PATH }}
+            npm install --production
+            
             # Buat service file untuk Node.js
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S bash -c 'cat > /etc/systemd/system/node-app.service << EOL
             [Unit]
@@ -78,11 +89,13 @@ jobs:
             After=network.target
 
             [Service]
-            ExecStart=/usr/bin/pm2 start ${{ secrets.DEPLOY_PATH }}/server.js --name "poke-fahmi"
+            WorkingDirectory=${{ secrets.DEPLOY_PATH }}
+            ExecStart=/usr/bin/pm2 start server.js --name "poke-fahmi"
             Restart=always
             User=www-data
             Group=www-data
             Environment=NODE_ENV=production
+            Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/local/node/bin
 
             [Install]
             WantedBy=multi-user.target
@@ -92,6 +105,9 @@ jobs:
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S systemctl daemon-reload
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S systemctl enable node-app
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S systemctl restart node-app
+            
+            # Periksa status PM2
+            pm2 list
             
             # Hapus semua konfigurasi yang ada
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S rm -f /etc/nginx/sites-enabled/*
