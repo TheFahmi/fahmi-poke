@@ -1,18 +1,25 @@
-# Pokémon Explorer App ⚡
+# <img src="https://archives.bulbagarden.net/media/upload/4/4b/Pok%C3%A9_Ball_icon.png" width="30"> Pokémon Explorer: Gotta Catch 'Em All! <img src="https://archives.bulbagarden.net/media/upload/4/4b/Pok%C3%A9_Ball_icon.png" width="30">
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" alt="Pokémon Explorer" width="200">
+  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" alt="Pikachu" width="150" style="float:left;">
+  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png" alt="Charizard" width="180">
+  <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/9.png" alt="Blastoise" width="150" style="float:right;">
 </div>
 
 <div align="center">
   <img src="https://img.shields.io/badge/vue.js-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white" alt="Vue.js">
   <img src="https://img.shields.io/badge/tailwindcss-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS">
   <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite">
+  <img src="https://img.shields.io/badge/PokéAPI-EF5350?style=for-the-badge&logo=pokemon&logoColor=white" alt="PokéAPI">
 </div>
 
-## Overview
+<div align="center">
+  <h3>🔴 ⚪ Start your Pokémon journey today! ⚪ 🔴</h3>
+</div>
 
-Pokémon Explorer is a modern web application built with Vue 3 and Tailwind CSS that allows users to browse, search, and favorite Pokémon from the Pokémon universe. The app fetches data from the [PokéAPI](https://pokeapi.co/) and provides a beautiful, responsive interface for exploring Pokémon.
+## 📖 Your Pokédex Guide
+
+Welcome, Pokémon Trainer! The Pokémon Explorer is your digital Pokédex built with Vue 3 and Tailwind CSS. Browse, search, and capture your favorite Pokémon from across all regions. With data directly from the [PokéAPI](https://pokeapi.co/), this responsive Pokédex is your ultimate companion on your journey to become a Pokémon Master!
 
 ## Features
 
