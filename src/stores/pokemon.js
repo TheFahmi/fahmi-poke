@@ -51,6 +51,9 @@ export const usePokemonStore = defineStore('pokemon', () => {
 
       // Load favorites first
       loadFavorites()
+      
+      // Load caught Pokemon
+      loadCaughtPokemons()
 
       // Reset state to ensure clean start
       isLoading.value = true
@@ -349,6 +352,37 @@ export const usePokemonStore = defineStore('pokemon', () => {
     }
   }
 
+  // Inisialisasi Pokemon dengan fallback data
+  // Dan tambahkan status tertangkap dari localStorage jika ada
+  const initPokemonsWithCaughtStatus = (newPokemons) => {
+    try {
+      console.log('Initializing caught status for new Pokémon...')
+      const storedCaughtIds = localStorage.getItem('caughtPokemons')
+      
+      if (storedCaughtIds) {
+        // Parse IDs yang tertangkap
+        const caughtIds = JSON.parse(storedCaughtIds)
+        
+        if (Array.isArray(caughtIds) && caughtIds.length > 0) {
+          console.log(`Found ${caughtIds.length} caught Pokémon IDs to initialize`)
+          
+          // Terapkan status tertangkap ke Pokemon baru
+          for (const pokemon of newPokemons) {
+            pokemon.isCaught = caughtIds.includes(pokemon.id) || caughtIds.includes(pokemon.id.toString())
+            if (pokemon.isCaught) {
+              console.log(`Initialized ${pokemon.name} (ID: ${pokemon.id}) as caught`)
+            }
+          }
+        }
+      }
+      
+      return newPokemons
+    } catch (error) {
+      console.error('Error initializing caught status:', error)
+      return newPokemons
+    }
+  }
+
   async function fetchPokemons() {
     console.log('Fetching Pokémon...')
     isLoading.value = true
@@ -631,6 +665,11 @@ export const usePokemonStore = defineStore('pokemon', () => {
         // Force a reactive update by creating a shallow copy
         pokemons.value = [...pokemons.value]
       })
+
+      // Apply caught status
+      const updatedPokemons = initPokemonsWithCaughtStatus(pokemons.value)
+
+      return updatedPokemons
     } catch (err) {
       error.value = err.message
       console.error('Error processing Pokemon data:', err)
@@ -975,6 +1014,7 @@ export const usePokemonStore = defineStore('pokemon', () => {
       return null;
     } finally {
       isLoading.value = false;
+      console.log('Search complete, setting isLoading to false');
     }
   }
 
@@ -1072,6 +1112,99 @@ export const usePokemonStore = defineStore('pokemon', () => {
     }
   }
 
+  // Toggle caught status untuk pokemon
+  function toggleCatch(pokemon) {
+    console.log('Toggle catch for:', pokemon.name, 'ID:', pokemon.id)
+
+    // Cari di pokemons berdasarkan ID
+    const pokemonIndex = pokemons.value.findIndex(p => p.id === pokemon.id)
+    
+    if (pokemonIndex !== -1) {
+      // Update objek pokemon di array pokemons
+      const updatedPokemon = { ...pokemons.value[pokemonIndex] }
+      updatedPokemon.isCaught = !updatedPokemon.isCaught
+      
+      // Ganti pokemon di array
+      pokemons.value[pokemonIndex] = updatedPokemon
+      
+      console.log(`Pokemon ${pokemon.name} ${updatedPokemon.isCaught ? 'caught' : 'released'}!`)
+      
+      // Simpan status di localStorage
+      localStorage.setItem('caughtPokemons', JSON.stringify(
+        pokemons.value.filter(p => p.isCaught).map(p => p.id)
+      ))
+    } else {
+      console.log('Pokemon not found in pokemons array:', pokemon.name)
+    }
+  }
+
+  // Memuat data Pokemon yang tertangkap dari localStorage
+  function loadCaughtPokemons() {
+    try {
+      console.log('Loading caught Pokémon from localStorage')
+      isLoading.value = true
+
+      // Safety timeout untuk mencegah loading terlalu lama
+      const safetyTimeoutId = setTimeout(() => {
+        if (isLoading.value) {
+          console.log('Safety timeout reached, force stopping loading state')
+          isLoading.value = false
+        }
+      }, 5000) // 5 detik timeout maksimum
+
+      const storedCaughtIds = localStorage.getItem('caughtPokemons')
+      
+      if (storedCaughtIds) {
+        // Parse IDs yang tertangkap
+        const caughtIds = JSON.parse(storedCaughtIds)
+        
+        if (Array.isArray(caughtIds)) {
+          console.log(`Found ${caughtIds.length} caught Pokémon IDs in localStorage:`, caughtIds)
+          
+          // Pastikan pokemons adalah array
+          if (Array.isArray(pokemons.value)) {
+            // Perbarui status caught di array pokemons dengan loop manual untuk memastikan reaktivitas
+            for (let i = 0; i < pokemons.value.length; i++) {
+              const pokemon = pokemons.value[i];
+              const wasCaught = pokemon.isCaught;
+              const shouldBeCaught = caughtIds.includes(pokemon.id) || caughtIds.includes(pokemon.id.toString());
+              
+              // Hanya update jika ada perubahan
+              if (wasCaught !== shouldBeCaught) {
+                // Buat salinan pokemon dan ubah property
+                const updatedPokemon = { ...pokemon, isCaught: shouldBeCaught };
+                // Ganti di array
+                pokemons.value[i] = updatedPokemon;
+                console.log(`Updated catch status for ${pokemon.name}, ID ${pokemon.id}: ${shouldBeCaught}`);
+              }
+            }
+            
+            // Force reactive update
+            pokemons.value = [...pokemons.value];
+            console.log('Caught Pokémon status updated in pokemons array');
+          } else {
+            console.error('pokemons.value is not an array:', typeof pokemons.value);
+          }
+        } else {
+          console.warn('Invalid caught Pokémon data in localStorage:', storedCaughtIds)
+        }
+      } else {
+        console.log('No caught Pokémon found in localStorage')
+      }
+
+      // Add a small delay for better UX
+      setTimeout(() => {
+        isLoading.value = false
+        console.log('Caught Pokémon loading complete, isLoading set to false')
+        // Bersihkan safety timeout karena operasi sudah selesai
+        clearTimeout(safetyTimeoutId)
+      }, 800) // Perlambat sedikit untuk UX yang lebih baik
+    } catch (error) {
+      console.error('Error loading caught Pokémon:', error)
+      isLoading.value = false
+    }
+  }
+
   return {
     pokemons,
     favorites,
@@ -1088,7 +1221,9 @@ export const usePokemonStore = defineStore('pokemon', () => {
     fetchPokemonByType,
     searchPokemon,
     toggleFavorite,
+    toggleCatch,
     loadFavorites,
+    loadCaughtPokemons,
     resetFilters,
     isFavorite,
     loadFallbackData,
