@@ -2,8 +2,8 @@
   <div class="max-w-7xl mx-auto">
     <!-- Favorites Header -->
     <div class="mb-8 text-center">
-      <h2 class="text-2xl font-bold text-white mb-2">Your Favorite Pokémon</h2>
-      <p class="text-white/80">Manage your collection of favorite Pokémon</p>
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Your Favorite Pokémon</h2>
+      <p class="text-gray-500 dark:text-white/80">Manage your collection of favorite Pokémon</p>
     </div>
 
     <!-- Favorites Grid -->
@@ -24,13 +24,13 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="flex flex-col items-center justify-center py-16 px-4 bg-white/10 backdrop-blur-sm rounded-xl">
+    <div v-else class="flex flex-col items-center justify-center py-16 px-4 bg-gray-100 dark:bg-white/10 backdrop-blur-sm rounded-xl">
       <img src="../assets/no-result.svg" alt="No favorites" class="w-40 h-40 mb-6 animate-bounce-slow" />
-      <h3 class="text-xl font-bold text-white mb-2">No Favorites Yet</h3>
-      <p class="text-white/80 text-center mb-6">You haven't added any Pokémon to your favorites yet.</p>
+      <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">No Favorites Yet</h3>
+      <p class="text-gray-600 dark:text-white/80 text-center mb-6">You haven't added any Pokémon to your favorites yet.</p>
       <button
         @click.prevent.stop="goToAllPokemon"
-        class="inline-block px-6 py-2 bg-white text-primary-700 font-medium rounded-full shadow-md hover:bg-gray-100 transition-colors text-center"
+        class="inline-block px-6 py-2 bg-indigo-600 text-white dark:bg-white dark:text-primary-700 font-medium rounded-full shadow-md hover:bg-indigo-700 dark:hover:bg-gray-100 transition-colors text-center"
       >
         Browse Pokémon
       </button>
