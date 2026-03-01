@@ -1,40 +1,34 @@
 <template>
-  <div class="relative" :class="{ 'lazy-loaded': hasLoaded, 'lazy-visible': isVisible && !hasLoaded }">
-    <!-- Skeleton loader shown while image is loading -->
-    <div
-      v-if="loading"
-      class="absolute inset-0 flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-md animate-pulse"
-    >
-      <div class="w-16 h-16 rounded-full bg-white/30 backdrop-blur-md flex items-center justify-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white/20" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8z"></path>
-          <path d="M12 6a6 6 0 106 6 6 6 0 00-6-6zm0 10a4 4 0 114-4 4 4 0 01-4 4z"></path>
-          <circle cx="12" cy="12" r="2"></circle>
-        </svg>
-      </div>
-      <!-- Shimmer Effect -->
-      <div class="shimmer"></div>
+  <div class="lazy-image-container relative overflow-hidden flex items-center justify-center" :style="{ height: height, width: width }">
+    <!-- Loading skeleton -->
+    <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-gray-100/50 dark:bg-primary-800/30">
+      <div class="w-8 h-8 rounded-full border-2 border-gray-300 dark:border-primary-600 border-t-accent animate-spin"></div>
     </div>
 
-    <!-- No debug indicators -->
+    <!-- Error state -->
+    <div v-if="error" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-100/50 dark:bg-primary-800/20 p-2">
+      <svg class="w-8 h-8 text-gray-400 dark:text-gray-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+      </svg>
+      <p class="text-gray-400 dark:text-gray-500 text-xs text-center">Image unavailable</p>
+    </div>
 
-    <!-- Actual image with IntersectionObserver for lazy loading -->
+    <!-- Actual image -->
     <img
-      ref="imageRef"
-      :src="currentSrc"
+      v-show="loaded && !error"
+      ref="img"
+      :src="src"
       :alt="alt"
-      :class="[imgClass, { 'opacity-0': loading, 'opacity-100 transition-opacity duration-300': !loading }]"
-      @load="onImageLoaded"
-      @error="onImageError"
-      width="150"
-      height="150"
-      loading="lazy"
+      :class="imageClass"
+      @load="onLoad"
+      @error="onError"
+      class="max-w-full max-h-full object-contain transition-opacity duration-300"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 
 const props = defineProps({
   src: {
@@ -43,181 +37,77 @@ const props = defineProps({
   },
   alt: {
     type: String,
-    default: 'Image'
-  },
-  imgClass: {
-    type: String,
-    default: 'w-full h-auto'
-  },
-  fallbackSrc: {
-    type: String,
     default: ''
   },
-  showIndicators: {
-    type: Boolean,
-    default: false // Set to true to show loading/loaded indicators
+  width: {
+    type: String,
+    default: '100%'
+  },
+  height: {
+    type: String,
+    default: '100%'
+  },
+  class: {
+    type: String,
+    default: ''
   }
 });
 
+const img = ref(null);
 const loading = ref(true);
-const imageRef = ref(null);
-const currentSrc = ref('');
-const observer = ref(null);
-const isVisible = ref(false);
-const hasLoaded = ref(false);
+const loaded = ref(false);
+const error = ref(false);
 
-// Load the image when it enters the viewport
-const loadImage = () => {
-  console.log('Loading image:', props.src);
-  isVisible.value = true;
-  // Use requestAnimationFrame to ensure the browser has time to paint before loading the image
-  requestAnimationFrame(() => {
-    currentSrc.value = props.src;
-  });
-};
+const imageClass = computed(() => {
+  return props.class;
+});
 
-// Handle successful image load
-const onImageLoaded = () => {
-  console.log('Image loaded successfully:', props.src);
+const onLoad = () => {
   loading.value = false;
-  hasLoaded.value = true;
-
-  // Dispatch a custom event that the image has loaded
-  if (imageRef.value) {
-    imageRef.value.dispatchEvent(new CustomEvent('imageLoaded', {
-      bubbles: true,
-      detail: { src: props.src }
-    }));
-  }
+  loaded.value = true;
 };
 
-// Handle image load error
-const onImageError = () => {
-  console.error(`Failed to load image: ${props.src}`);
-  if (props.fallbackSrc) {
-    currentSrc.value = props.fallbackSrc;
-  } else {
-    // Use a default placeholder
-    currentSrc.value = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png';
-  }
+const onError = () => {
   loading.value = false;
-
-  // Dispatch a custom event that the image failed to load
-  if (imageRef.value) {
-    imageRef.value.dispatchEvent(new CustomEvent('imageError', {
-      bubbles: true,
-      detail: { src: props.src, error: true }
-    }));
-  }
+  error.value = true;
 };
 
-// Check if image is already in browser cache
-const checkImageCache = (src) => {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      console.log('Image already in cache:', src);
-      resolve(true);
-    };
-    img.onerror = () => {
-      console.log('Image not in cache:', src);
-      resolve(false);
-    };
-    img.src = src;
-  });
-};
-
-// Watch for src changes
 watch(() => props.src, (newSrc) => {
-  if (newSrc !== currentSrc.value) {
+  if (newSrc) {
     loading.value = true;
-    currentSrc.value = newSrc;
+    loaded.value = false;
+    error.value = false;
   }
 });
 
-onMounted(async () => {
-  // Set a placeholder or transparent image initially
-  currentSrc.value = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-
-  // Check if image is already in browser cache
-  const isCached = await checkImageCache(props.src);
-  if (isCached) {
-    // If image is already cached, load it immediately
-    console.log('Loading cached image immediately:', props.src);
-    isVisible.value = true;
-    hasLoaded.value = true;
+onMounted(() => {
+  if (img.value?.complete) {
     loading.value = false;
-    currentSrc.value = props.src;
-    return;
+    loaded.value = true;
   }
 
-  // Check if IntersectionObserver is supported
   if ('IntersectionObserver' in window) {
-    // Set up IntersectionObserver for lazy loading
-    observer.value = new IntersectionObserver((entries) => {
-      console.log('IntersectionObserver triggered:', entries[0].isIntersecting, 'for image:', props.src);
-      if (entries[0].isIntersecting) {
-        isVisible.value = true;
-        loadImage();
-        // Unobserve after loading to save resources
-        if (observer.value && imageRef.value) {
-          observer.value.unobserve(imageRef.value);
-          console.log('Unobserved image:', props.src);
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          if (img.value) {
+            img.value.src = props.src;
+          }
+          observer.unobserve(entry.target);
         }
-      }
+      });
     }, {
-      rootMargin: '200px', // Start loading when within 200px of viewport
+      rootMargin: '50px',
       threshold: 0.1
     });
 
-    // Start observing the image element
-    if (imageRef.value) {
-      observer.value.observe(imageRef.value);
-      console.log('Started observing image:', props.src);
-    } else {
-      console.warn('Image ref not available for:', props.src);
+    if (img.value) {
+      observer.observe(img.value);
     }
   } else {
-    // Fallback for browsers that don't support IntersectionObserver
-    loadImage();
-  }
-});
-
-// Clean up observer when component is unmounted
-onUnmounted(() => {
-  if (observer.value && imageRef.value) {
-    observer.value.unobserve(imageRef.value);
-    observer.value = null;
+    if (img.value) {
+      img.value.src = props.src;
+    }
   }
 });
 </script>
-
-<style scoped>
-/* Shimmer effect */
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-.shimmer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.05) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  animation: shimmer 2s infinite;
-  pointer-events: none;
-}
-
-/* No visual indicators */
-</style>
