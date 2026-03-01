@@ -1,9 +1,16 @@
-const { defineConfig } = require('vite');
-const vue = require('@vitejs/plugin-vue');
-const path = require('path');
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import tailwindcss from '@tailwindcss/vite';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-module.exports = defineConfig({
-  plugins: [vue()],
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default defineConfig({
+  plugins: [
+    vue(),
+    tailwindcss(),
+  ],
   base: './',
   resolve: {
     alias: {
@@ -14,34 +21,22 @@ module.exports = defineConfig({
     port: 3000
   },
   build: {
-    // Fix for crypto.getRandomValues() issue on Vercel
     rollupOptions: {
-      external: ['crypto'],
       output: {
-        // Pastikan ESM modul memiliki nama file yang konsisten
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-        // Hindari hash yang terlalu panjang
-        manualChunks: undefined
       }
     },
-    // Ganti minifier untuk mencegah masalah ESM
     minify: 'terser',
     terserOptions: {
       format: {
-        // Pastikan sintaks ES modules tetap
         ecma: 2015
       },
       compress: {
-        // Hindari optimisasi yang terlalu agresif
         keep_infinity: true,
         passes: 1
       }
     }
   },
-  define: {
-    // Fix for crypto.getRandomValues() issue on Vercel
-    'process.env': {}
-  }
 });

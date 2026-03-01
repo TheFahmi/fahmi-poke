@@ -1,5 +1,130 @@
-@import 'tailwindcss/base';
+@import "tailwindcss";
 
-@import 'tailwindcss/components';
+/* Dark mode via class strategy */
+@custom-variant dark (&:where(.dark, .dark *));
 
-@import 'tailwindcss/utilities';
+@theme {
+  /* Font Family */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Primary (slate) palette */
+  --color-primary-50: #f8fafc;
+  --color-primary-100: #f1f5f9;
+  --color-primary-200: #e2e8f0;
+  --color-primary-300: #cbd5e1;
+  --color-primary-400: #94a3b8;
+  --color-primary-500: #64748b;
+  --color-primary-600: #475569;
+  --color-primary-700: #334155;
+  --color-primary-800: #1e293b;
+  --color-primary-900: #0f172a;
+  --color-primary-950: #020617;
+
+  /* Surface colors */
+  --color-surface: #1e293b;
+  --color-surface-light: #334155;
+  --color-surface-dark: #0f172a;
+  --color-surface-card: #1e293b;
+  --color-surface-hover: #273548;
+
+  /* Accent (indigo) */
+  --color-accent: #6366f1;
+  --color-accent-light: #818cf8;
+  --color-accent-dark: #4f46e5;
+
+  /* Pokemon type colors */
+  --color-pokemon-red: #e20000;
+  --color-pokemon-yellow: #ffbf0b;
+  --color-pokemon-blue: #0075BE;
+  --color-pokemon-yellow2: #FFCC00;
+  --color-pokemon-normal: #A8A878;
+  --color-pokemon-fire: #F08030;
+  --color-pokemon-water: #6890F0;
+  --color-pokemon-grass: #78C850;
+  --color-pokemon-electric: #F8D030;
+  --color-pokemon-ice: #98D8D8;
+  --color-pokemon-fighting: #C03028;
+  --color-pokemon-poison: #A040A0;
+  --color-pokemon-ground: #E0C068;
+  --color-pokemon-flying: #A890F0;
+  --color-pokemon-psychic: #F85888;
+  --color-pokemon-bug: #A8B820;
+  --color-pokemon-rock: #B8A038;
+  --color-pokemon-ghost: #705898;
+  --color-pokemon-dragon: #7038F8;
+  --color-pokemon-dark: #705848;
+  --color-pokemon-steel: #B8B8D0;
+  --color-pokemon-fairy: #EE99AC;
+
+  /* Box Shadows */
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+  --shadow-card-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --shadow-glow: 0 0 15px rgba(99, 102, 241, 0.3);
+
+  /* Border Radius */
+  --radius-card: 1rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+
+  /* Animations */
+  --animate-bounce-slow: bounce 3s infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-spin-slow: spin 8s linear infinite;
+  --animate-pulse-subtle: pulse-subtle 3s infinite;
+  --animate-fade-in: fadeIn 0.3s ease-out;
+  --animate-slide-up: slideUp 0.4s ease-out;
+  --animate-scale-in: scaleIn 0.2s ease-out;
+
+  /* Keyframes */
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+
+  @keyframes pulse-subtle {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.9; transform: scale(0.98); }
+  }
+
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    0% { opacity: 0; transform: translateY(16px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes scaleIn {
+    0% { opacity: 0; transform: scale(0.95); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 dark:bg-primary-950 dark:text-gray-100 antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  * {
+    @apply border-gray-200/50 dark:border-gray-700/50;
+  }
+
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-200 dark:bg-primary-900;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 dark:bg-primary-600 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500 dark:bg-primary-500;
+  }
+}
