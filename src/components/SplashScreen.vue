@@ -1,218 +1,123 @@
 <template>
   <div 
-    class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-pokemon-yellow via-pokemon-red to-pokemon-blue"
-    :class="{ 'fade-out': isFading }"
+    class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gray-50 dark:bg-[#020617] transition-all duration-1000 ease-in-out font-inter"
+    :class="{ 'opacity-0 invisible': isFading, 'opacity-100 visible': !isFading }"
   >
-    <div class="relative">
-      <!-- Pokémon Logo -->
-      <img
-        src="https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg"
-        alt="Pokémon Logo"
-        class="w-64 md:w-80 mb-8 animate-bounce-slow"
-      >
+    <div class="flex flex-col items-center justify-center w-full max-w-md px-6 transform transition-transform duration-1000" :class="{ 'scale-95': isFading, 'scale-100': !isFading }">
       
-      <!-- Pokéball Animation -->
-      <div class="pokeball-container">
-        <div class="pokeball">
-          <div class="pokeball-top"></div>
-          <div class="pokeball-middle">
-            <div class="pokeball-button"></div>
+      <!-- Minimalist Logo / Title -->
+      <div class="mb-12 flex flex-col items-center">
+        <!-- Abstract Modern Pokedex Icon -->
+        <div class="w-16 h-16 mb-8 rounded-2xl bg-gradient-to-br from-white to-gray-100 dark:from-gray-800 dark:to-gray-900 border border-gray-200 dark:border-gray-700/50 shadow-2xl flex items-center justify-center relative overflow-hidden">
+          <div class="w-10 h-10 rounded-full border border-gray-300 dark:border-gray-600/50 flex items-center justify-center relative">
+            <div class="w-4 h-4 rounded-full bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.6)]"></div>
           </div>
-          <div class="pokeball-bottom"></div>
+          <div class="absolute top-2 left-2 w-2 h-2 rounded-full bg-red-500/80"></div>
+          <div class="absolute top-2 left-5 w-1.5 h-1.5 rounded-full bg-yellow-500/80"></div>
+          <div class="absolute top-2 left-8 w-1.5 h-1.5 rounded-full bg-green-500/80"></div>
+        </div>
+        <h1 class="text-2xl font-semibold tracking-[0.2em] text-gray-900 dark:text-gray-200 mb-2">POKÉDEX</h1>
+      </div>
+
+      <!-- Loading Bar -->
+      <div class="w-full max-w-[200px] mb-6">
+        <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800 overflow-hidden relative">
+          <div class="absolute inset-y-0 left-0 h-full bg-indigo-500 w-full loading-bar"></div>
         </div>
       </div>
-      
-      <!-- Loading Text -->
-      <div class="text-white text-xl font-bold mt-8 text-center">
-        <p>Loading Pokédex</p>
-        <div class="flex justify-center mt-2">
-          <div class="dot-flashing"></div>
-        </div>
+
+      <!-- Loading Message -->
+      <div class="h-6 flex items-center justify-center mb-16">
+        <p class="text-sm text-gray-500 dark:text-gray-400 tracking-wide font-light transition-opacity duration-300">{{ loadingMessage }}</p>
       </div>
+
+      <!-- Start Button -->
+      <button 
+        @click="startJourney"
+        class="group px-8 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium tracking-wide rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-[0_0_15px_rgba(99,102,241,0.4)] active:scale-95"
+      >
+        START
+      </button>
+
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 
 const props = defineProps({
   duration: {
     type: Number,
-    default: 2500 // Default duration in milliseconds
+    default: 3000
   }
-})
+});
 
-const emit = defineEmits(['complete'])
-const isFading = ref(false)
+const emit = defineEmits(['complete']);
 
-onMounted(() => {
-  // Start the fade out animation after the specified duration
+const isFading = ref(false);
+const loadingMessages = [
+  "Loading Pokédex data...",
+  "Connecting to Professor Oak's lab...",
+  "Preparing your starter Pokémon...",
+  "Organizing Poké Balls...",
+  "Checking the tall grass...",
+  "Training your first Pokémon...",
+  "Waiting for Nurse Joy...",
+  "Challenging Gym Leaders...",
+  "Catching legendary Pokémon...",
+  "Team Rocket blasting off again!"
+];
+const loadingMessage = ref(loadingMessages[0]);
+let messageInterval;
+
+// Function to start the journey immediately
+const startJourney = () => {
+  isFading.value = true;
+  // Short timeout to allow fade animation to start before emitting complete
   setTimeout(() => {
-    isFading.value = true
-    
-    // Emit the complete event after the animation finishes
-    setTimeout(() => {
-      emit('complete')
-    }, 1000) // Animation duration
-  }, props.duration)
-})
+    emit('complete');
+    clearInterval(messageInterval);
+  }, 500);
+};
+
+// Cycle through loading messages
+onMounted(() => {
+  let index = 0;
+  messageInterval = setInterval(() => {
+    index = (index + 1) % loadingMessages.length;
+    loadingMessage.value = loadingMessages[index];
+  }, 2000);
+
+  // Start the fade out after the specified duration
+  setTimeout(() => {
+    isFading.value = true;
+  }, props.duration - 1000);
+
+  // Complete the splash screen after fade
+  setTimeout(() => {
+    emit('complete');
+    clearInterval(messageInterval);
+  }, props.duration);
+});
+
+onBeforeUnmount(() => {
+  clearInterval(messageInterval);
+});
 </script>
 
 <style scoped>
-/* Fade out animation */
-.fade-out {
-  animation: fadeOut 1s forwards;
+.font-inter {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+.loading-bar {
+  animation: sweep 1.5s ease-in-out infinite;
 }
 
-/* Pokéball Animation */
-.pokeball-container {
-  width: 100px;
-  height: 100px;
-  margin: 0 auto;
-  position: relative;
-}
-
-.pokeball {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  animation: shake 1.5s ease-in-out infinite;
-  transform-origin: center;
-}
-
-.pokeball-top {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 50%;
-  background-color: #f00;
-  border-radius: 50px 50px 0 0;
-  border: 5px solid #333;
-  border-bottom: none;
-  box-sizing: border-box;
-}
-
-.pokeball-bottom {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 50%;
-  background-color: #fff;
-  border-radius: 0 0 50px 50px;
-  border: 5px solid #333;
-  border-top: none;
-  box-sizing: border-box;
-}
-
-.pokeball-middle {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 100%;
-  height: 5px;
-  background-color: #333;
-  transform: translateY(-50%);
-  z-index: 2;
-}
-
-.pokeball-button {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 20px;
-  height: 20px;
-  background-color: #fff;
-  border: 5px solid #333;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 3;
-  box-shadow: 0 0 0 5px #fff;
-}
-
-@keyframes shake {
-  0%, 100% {
-    transform: rotate(-10deg);
-  }
-  25% {
-    transform: rotate(10deg);
-  }
-  50% {
-    transform: rotate(-10deg);
-  }
-  75% {
-    transform: rotate(10deg);
-  }
-}
-
-/* Bouncing Animation */
-.animate-bounce-slow {
-  animation: bounce 3s infinite;
-}
-
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
-}
-
-/* Loading Dots Animation */
-.dot-flashing {
-  position: relative;
-  width: 10px;
-  height: 10px;
-  border-radius: 5px;
-  background-color: #fff;
-  color: #fff;
-  animation: dot-flashing 1s infinite linear alternate;
-  animation-delay: 0.5s;
-}
-
-.dot-flashing::before, .dot-flashing::after {
-  content: '';
-  display: inline-block;
-  position: absolute;
-  top: 0;
-}
-
-.dot-flashing::before {
-  left: -15px;
-  width: 10px;
-  height: 10px;
-  border-radius: 5px;
-  background-color: #fff;
-  color: #fff;
-  animation: dot-flashing 1s infinite alternate;
-  animation-delay: 0s;
-}
-
-.dot-flashing::after {
-  left: 15px;
-  width: 10px;
-  height: 10px;
-  border-radius: 5px;
-  background-color: #fff;
-  color: #fff;
-  animation: dot-flashing 1s infinite alternate;
-  animation-delay: 1s;
-}
-
-@keyframes dot-flashing {
-  0% {
-    background-color: #fff;
-  }
-  50%, 100% {
-    background-color: rgba(255, 255, 255, 0.2);
-  }
+@keyframes sweep {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
 }
 </style>
