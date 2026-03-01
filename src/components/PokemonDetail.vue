@@ -19,7 +19,7 @@
         <div class="absolute top-4 right-4 flex items-center gap-3 z-20">
           <button 
             @click="pokemonStore.toggleFavorite(pokemon)"
-            class="p-2 rounded-full bg-gray-200/50 dark:bg-black/20 hover:bg-gray-300/50 dark:hover:bg-black/40 transition-colors backdrop-blur-md text-gray-900 dark:text-white"
+            class="p-2 rounded-full bg-gray-200/50 dark:bg-black/20 hover:bg-gray-300/50 dark:hover:bg-black/40 transition-colors backdrop-blur-md text-gray-900 dark:text-white cursor-pointer"
             :class="{ 'text-red-500 dark:text-red-500': pokemonStore.isFavorite(pokemon.id) }"
             aria-label="Favorite"
           >
@@ -29,7 +29,7 @@
           </button>
           <button 
             @click="handleDetailCatch"
-            class="p-2 rounded-full bg-gray-200/50 dark:bg-black/20 hover:bg-gray-300/50 dark:hover:bg-black/40 transition-all backdrop-blur-md relative overflow-visible"
+            class="p-2 rounded-full bg-gray-200/50 dark:bg-black/20 hover:bg-gray-300/50 dark:hover:bg-black/40 transition-all backdrop-blur-md relative overflow-visible cursor-pointer"
             :class="[
               pokemon.isCaught ? 'text-accent' : 'text-gray-900 dark:text-white',
               { 'detail-catch-animating': isDetailCatching, 'detail-catch-success': showDetailCatchSuccess }
@@ -49,7 +49,7 @@
           </button>
           <button 
             @click="closeModal"
-            class="p-2 rounded-full bg-gray-200/50 dark:bg-black/20 hover:bg-gray-300/50 dark:hover:bg-black/40 transition-colors backdrop-blur-md text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+            class="p-2 rounded-full bg-gray-200/50 dark:bg-black/20 hover:bg-gray-300/50 dark:hover:bg-black/40 transition-colors backdrop-blur-md text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white cursor-pointer"
             aria-label="Close"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -94,7 +94,7 @@
               v-for="tab in tabs" 
               :key="tab.id"
               @click="activeTab = tab.id"
-              class="flex-1 py-2 text-sm font-medium rounded-md transition-all duration-200"
+              class="flex-1 py-2 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer"
               :class="activeTab === tab.id ? 'bg-accent text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'"
             >
               {{ tab.label }}
@@ -109,21 +109,21 @@
               <div class="grid grid-cols-2 gap-4">
                 <div class="bg-gray-50 dark:bg-primary-800/50 p-4 rounded-xl border border-gray-200 dark:border-primary-700/50">
                   <p class="text-gray-500 dark:text-gray-400 text-xs mb-1">Height</p>
-                  <p class="text-gray-900 dark:text-white font-semibold">{{ (pokemon.height / 10).toFixed(1) }} m</p>
+                  <p class="text-gray-900 dark:text-white font-semibold">{{ pokemon.height != null ? (pokemon.height / 10).toFixed(1) + ' m' : '—' }}</p>
                 </div>
                 <div class="bg-gray-50 dark:bg-primary-800/50 p-4 rounded-xl border border-gray-200 dark:border-primary-700/50">
                   <p class="text-gray-500 dark:text-gray-400 text-xs mb-1">Weight</p>
-                  <p class="text-gray-900 dark:text-white font-semibold">{{ (pokemon.weight / 10).toFixed(1) }} kg</p>
+                  <p class="text-gray-900 dark:text-white font-semibold">{{ pokemon.weight != null ? (pokemon.weight / 10).toFixed(1) + ' kg' : '—' }}</p>
                 </div>
                 <div class="bg-gray-50 dark:bg-primary-800/50 p-4 rounded-xl border border-gray-200 dark:border-primary-700/50">
                   <p class="text-gray-500 dark:text-gray-400 text-xs mb-1">Base Exp</p>
-                  <p class="text-gray-900 dark:text-white font-semibold">{{ pokemon.base_experience || '?' }}</p>
+                  <p class="text-gray-900 dark:text-white font-semibold">{{ pokemon.base_experience ?? '—' }}</p>
                 </div>
                 <div class="bg-gray-50 dark:bg-primary-800/50 p-4 rounded-xl border border-gray-200 dark:border-primary-700/50">
                   <p class="text-gray-500 dark:text-gray-400 text-xs mb-1">Abilities</p>
                   <div class="flex flex-col gap-1">
                     <span 
-                      v-for="ability in pokemon.abilities" 
+                      v-for="ability in (pokemon.abilities || [])" 
                       :key="ability.ability.name"
                       class="text-gray-900 dark:text-white text-sm capitalize flex items-center gap-1"
                     >
@@ -137,18 +137,19 @@
 
             <!-- Stats Tab -->
             <div v-show="activeTab === 'stats'" class="space-y-4 animate-fade-in">
+              <template v-if="pokemon.stats && pokemon.stats.length">
               <div v-for="stat in pokemon.stats" :key="stat.stat.name" class="flex items-center gap-3">
                 <div class="w-16 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   {{ formatStatName(stat.stat.name) }}
                 </div>
                 <div class="w-8 text-right text-sm font-bold text-gray-900 dark:text-white">
-                  {{ stat.base_stat }}
+                  {{ stat.base_stat ?? '—' }}
                 </div>
                 <div class="flex-1 h-2 bg-gray-100 dark:bg-primary-800 rounded-full overflow-hidden">
                   <div 
                     class="h-full rounded-full transition-all duration-1000 ease-out"
                     :class="getStatColorClass(stat.base_stat)"
-                    :style="{ width: `${Math.min(100, (stat.base_stat / 255) * 100)}%` }"
+                    :style="{ width: `${Math.min(100, ((stat.base_stat || 0) / 255) * 100)}%` }"
                   ></div>
                 </div>
               </div>
@@ -156,6 +157,10 @@
                 <div class="w-16 text-right text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Total</div>
                 <div class="w-8 text-right text-sm font-bold text-accent">{{ totalStats }}</div>
                 <div class="flex-1"></div>
+              </div>
+              </template>
+              <div v-else class="text-center text-gray-500 py-12 text-sm">
+                Loading stats...
               </div>
             </div>
 
@@ -343,6 +348,7 @@ const getDetailSparkleStyle = (index) => {
 }
 
 const formatId = (id) => {
+  if (id == null) return '???'
   return String(id).padStart(3, '0')
 }
 

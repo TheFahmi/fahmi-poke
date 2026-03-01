@@ -1,6 +1,6 @@
 <template>
   <div
-    class="pokemon-card group"
+    class="pokemon-card group cursor-pointer"
     @click="viewDetails"
   >
     <!-- Background Gradient based on primary type -->
@@ -12,7 +12,7 @@
       <!-- Favorite Button -->
       <button 
         @click.stop="toggleFavorite"
-        class="action-btn favorite-btn"
+        class="action-btn favorite-btn cursor-pointer"
         :class="{ 'is-active': pokemon.isFavorite }"
         aria-label="Toggle Favorite"
       >
@@ -33,7 +33,7 @@
       <!-- Catch Button -->
       <button 
         @click.stop="handleCatchClick"
-        class="action-btn catch-btn"
+        class="action-btn catch-btn cursor-pointer"
         :class="{ 'is-caught': pokemon.isCaught, 'is-animating': isCatching, 'is-releasing': isReleasing, 'catch-success': showCatchSuccess }"
         aria-label="Catch Pokemon"
       >
