@@ -1,7 +1,7 @@
 <template>
   <button
     @click="toggleDarkMode"
-    class="p-2 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent/50 hover:bg-gray-200 dark:hover:bg-primary-700/50"
+    class="p-2 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent/50 hover:bg-gray-200 dark:hover:bg-primary-700/50 cursor-pointer"
     :class="isDarkMode ? 'text-yellow-400' : 'text-gray-500'"
     aria-label="Toggle dark mode"
   >

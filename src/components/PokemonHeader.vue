@@ -8,17 +8,12 @@
         
         <!-- Logo & Title -->
         <div class="flex items-center w-full md:w-auto justify-between md:justify-start gap-4">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 2a14.5 14.5 0 0 0 0 20" />
-                <path d="M2 12h20" />
-              </svg>
-            </div>
-            <h1 class="text-xl font-bold text-gray-900 dark:text-slate-100 tracking-tight font-sans">
-              Pokédex
-            </h1>
+          <div class="flex items-center gap-3 cursor-pointer" @click="switchToAllPokemon">
+            <img
+              alt="Pokémon logo"
+              src="https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg"
+              class="h-8 md:h-10"
+            />
           </div>
           
           <!-- Mobile Controls (Right side of Logo row) -->
@@ -26,7 +21,7 @@
             <DarkModeToggle />
             <button 
               @click="isMobileMenuOpen = !isMobileMenuOpen"
-              class="p-2 text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-md transition-colors"
+              class="p-2 text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
             >
               <svg v-if="!isMobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -46,7 +41,7 @@
             <button
               @click="switchToAllPokemon"
               :class="[
-                'px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200',
+                'px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer',
                 activeMenu === 'listPokemon' 
                   ? 'bg-indigo-500 text-white shadow-sm' 
                   : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 hover:bg-gray-200/50 dark:hover:bg-slate-700/50'
@@ -57,7 +52,7 @@
             <button
               @click="switchToCaught"
               :class="[
-                'px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200',
+                'px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer',
                 activeMenu === 'listCaught' 
                   ? 'bg-indigo-500 text-white shadow-sm' 
                   : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 hover:bg-gray-200/50 dark:hover:bg-slate-700/50'
@@ -68,7 +63,7 @@
             <button
               @click="switchToFavorite"
               :class="[
-                'px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200',
+                'px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer',
                 activeMenu === 'listFavorite' 
                   ? 'bg-indigo-500 text-white shadow-sm' 
                   : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 hover:bg-gray-200/50 dark:hover:bg-slate-700/50'
@@ -87,7 +82,7 @@
           <div class="relative type-dropdown" ref="desktopDropdownRef">
             <button
               @click.stop="toggleTypeDropdown"
-              class="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600 text-gray-700 dark:text-slate-200 rounded-lg text-sm font-medium transition-colors"
+              class="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600 text-gray-700 dark:text-slate-200 rounded-lg text-sm font-medium transition-colors cursor-pointer"
             >
               <span class="capitalize">{{ selectedType?.value || 'All Types' }}</span>
               <svg class="w-4 h-4 text-gray-500 dark:text-slate-400 transition-transform" :class="{ 'rotate-180': isTypeDropdownOpen }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -103,7 +98,7 @@
               <div class="max-h-80 overflow-y-auto py-1 custom-scrollbar">
                 <button
                   @click="clearTypeFilter"
-                  class="w-full text-left px-4 py-2 text-sm text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center gap-2"
+                  class="w-full text-left px-4 py-2 text-sm text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center gap-2 cursor-pointer"
                 >
                   <div class="w-2 h-2 rounded-full bg-gray-400 dark:bg-slate-400"></div>
                   All Types
@@ -115,7 +110,7 @@
                     v-for="type in pokemonStore.pokemonTypes"
                     :key="type.name"
                     @click="filterByType(type.name)"
-                    class="w-full text-left px-4 py-2 text-sm text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center gap-2 capitalize"
+                    class="w-full text-left px-4 py-2 text-sm text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center gap-2 capitalize cursor-pointer"
                     :class="{ 'bg-gray-100 dark:bg-slate-700/50 text-gray-900 dark:text-white': selectedType?.value === type.name }"
                   >
                     <div class="w-2 h-2 rounded-full" :class="`bg-pokemon-${type.name}`"></div>
@@ -143,7 +138,7 @@
           <button
             @click="switchToAllPokemon"
             :class="[
-              'px-4 py-2 text-sm font-medium rounded-md transition-colors',
+              'px-4 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer',
               activeMenu === 'listPokemon' 
                 ? 'bg-indigo-500 text-white' 
                 : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'
@@ -154,7 +149,7 @@
           <button
             @click="switchToCaught"
             :class="[
-              'px-4 py-2 text-sm font-medium rounded-md transition-colors',
+              'px-4 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer',
               activeMenu === 'listCaught' 
                 ? 'bg-indigo-500 text-white' 
                 : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'
@@ -165,7 +160,7 @@
           <button
             @click="switchToFavorite"
             :class="[
-              'px-4 py-2 text-sm font-medium rounded-md transition-colors',
+              'px-4 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer',
               activeMenu === 'listFavorite' 
                 ? 'bg-indigo-500 text-white' 
                 : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'
@@ -186,7 +181,7 @@
           <div class="flex flex-wrap gap-2">
             <button
               @click="clearTypeFilter"
-              class="px-3 py-1.5 text-xs font-medium rounded-full border transition-colors flex items-center gap-1.5"
+              class="px-3 py-1.5 text-xs font-medium rounded-full border transition-colors flex items-center gap-1.5 cursor-pointer"
               :class="!selectedType?.value ? 'bg-indigo-50 border-indigo-200 dark:bg-indigo-500/20 dark:border-indigo-500/50 text-indigo-700 dark:text-indigo-300' : 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-slate-200'"
             >
               <div class="w-1.5 h-1.5 rounded-full bg-current"></div>
@@ -196,7 +191,7 @@
               v-for="type in pokemonStore.pokemonTypes"
               :key="type.name"
               @click="filterByType(type.name)"
-              class="px-3 py-1.5 text-xs font-medium rounded-full border transition-colors flex items-center gap-1.5 capitalize"
+              class="px-3 py-1.5 text-xs font-medium rounded-full border transition-colors flex items-center gap-1.5 capitalize cursor-pointer"
               :class="selectedType?.value === type.name ? 'bg-indigo-50 border-indigo-200 dark:bg-indigo-500/20 dark:border-indigo-500/50 text-indigo-700 dark:text-white' : 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-slate-200'"
             >
               <div class="w-1.5 h-1.5 rounded-full" :class="`bg-pokemon-${type.name}`"></div>
