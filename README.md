@@ -161,3 +161,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - [PokéAPI](https://pokeapi.co/) for providing the Pokémon data
 - [Pokémon](https://www.pokemon.com/) for the inspiration
+
+<!-- Security scan triggered at 2026-10-07 11:40:17 -->
